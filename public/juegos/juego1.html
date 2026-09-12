@@ -1,0 +1,3844 @@
+<!-- ============================================================
+     JUEGO DE LÓGICA - PUZZLE DE PIEZAS
+     DISEÑO ADAPTADO A ESTILO ROBO ROBIN
+
+     FUNCIONAMIENTO ORIGINAL CONSERVADO:
+     - Las piezas colocadas pueden volver a moverse.
+     - Las piezas siguen correctamente al cursor.
+     - Las piezas inválidas regresan a su posición anterior.
+     - Las piezas fijas no pueden moverse.
+============================================================ -->
+
+<style>
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+</style>
+
+
+<div id="logic-puzzle-game">
+
+<style>
+
+/* ============================================================
+   CONTENEDOR PRINCIPAL
+============================================================ */
+
+#logic-puzzle-game {
+
+    margin: 0;
+    padding: 0;
+    border: 0;
+
+    --game-width: 100%;
+    --game-height: 100vh;
+
+    /* PALETA ROBIN */
+
+    --bg1: #FAF7F4;
+    --bg2: #F5F0EC;
+
+    --panel: #FFFFFF;
+    --panel-light: #F9F6F3;
+
+    --text: #14100E;
+    --muted: #81756D;
+
+    --accent: #E23A1B;
+    --accent-dark: #C92F15;
+    --accent-light: #FDE8E3;
+
+    --success: #4B9B72;
+    --danger: #D94A43;
+
+    --border: #E7DFD8;
+    --border-light: #EEE7E2;
+
+    width: var(--game-width);
+    height: var(--game-height);
+
+    min-height: 600px;
+
+    position: relative;
+    overflow: hidden;
+
+    color: var(--text);
+
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background:
+        var(--bg1);
+
+    box-sizing: border-box;
+}
+
+
+#logic-puzzle-game *,
+#logic-puzzle-game *::before,
+#logic-puzzle-game *::after {
+    box-sizing: border-box;
+}
+
+
+/* ============================================================
+   DECORACIÓN DE FONDO
+============================================================ */
+
+#logic-puzzle-game .lp-background {
+
+    position: absolute;
+
+    inset: 0;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            135deg,
+            #FAF7F4,
+            #F7F3F0
+        );
+}
+
+
+#logic-puzzle-game .lp-orb {
+
+    position: absolute;
+
+    border-radius: 50%;
+
+    filter: blur(80px);
+
+    opacity: .12;
+}
+
+
+#logic-puzzle-game .lp-orb.one {
+
+    width: 280px;
+    height: 280px;
+
+    background: #E23A1B;
+
+    top: -140px;
+    left: -120px;
+}
+
+
+#logic-puzzle-game .lp-orb.two {
+
+    width: 260px;
+    height: 260px;
+
+    background: #E7B8A8;
+
+    bottom: -120px;
+    right: -100px;
+}
+
+
+#logic-puzzle-game .lp-grid-decoration {
+
+    position: absolute;
+
+    inset: 0;
+
+    opacity: .025;
+
+    background-image:
+
+        linear-gradient(
+            #14100E 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            90deg,
+            #14100E 1px,
+            transparent 1px
+        );
+
+    background-size: 45px 45px;
+}
+
+
+/* ============================================================
+   BOTÓN VOLVER
+============================================================ */
+
+#logic-puzzle-game .lp-back {
+
+    position: absolute;
+
+    top: 22px;
+    left: 24px;
+
+    z-index: 50;
+
+    color: var(--text);
+
+    text-decoration: none;
+
+    padding: 9px 16px;
+
+    border-radius: 999px;
+
+    background:
+        #FFFFFF;
+
+    border:
+        1px solid
+        var(--border);
+
+    box-shadow:
+        0 3px 10px
+        rgba(20,16,14,.06);
+
+    font-size: 14px;
+
+    font-weight: 650;
+
+    transition: .2s ease;
+}
+
+
+#logic-puzzle-game .lp-back:hover {
+
+    background:
+        var(--accent-light);
+
+    border-color:
+        #F1B7AA;
+
+    color:
+        var(--accent);
+
+    transform:
+        translateX(-2px);
+}
+
+
+/* ============================================================
+   ÁREA DEL JUEGO
+============================================================ */
+
+#logic-puzzle-game .lp-wrapper {
+
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    padding:
+        70px
+        clamp(15px, 4vw, 55px)
+        20px;
+
+    z-index: 2;
+}
+
+
+/* ============================================================
+   CABECERA
+============================================================ */
+
+#logic-puzzle-game .lp-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 18px;
+}
+
+
+#logic-puzzle-game .lp-title-area h1 {
+
+    margin: 0;
+
+    font-size:
+        clamp(24px, 3vw, 38px);
+
+    font-weight: 800;
+
+    letter-spacing: -1px;
+
+    color:
+        var(--text);
+}
+
+
+#logic-puzzle-game .lp-title-area p {
+
+    margin:
+        5px 0 0;
+
+    color:
+        var(--muted);
+
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   INFORMACIÓN
+============================================================ */
+
+#logic-puzzle-game .lp-info {
+
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+}
+
+
+#logic-puzzle-game .lp-stat {
+
+    min-width: 82px;
+
+    padding:
+        9px 14px;
+
+    border-radius: 13px;
+
+    background:
+        #FFFFFF;
+
+    border:
+        1px solid
+        var(--border);
+
+    box-shadow:
+        0 3px 10px
+        rgba(20,16,14,.04);
+
+    text-align: center;
+}
+
+
+#logic-puzzle-game .lp-stat-label {
+
+    display: block;
+
+    font-size: 10px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+
+    color: var(--muted);
+
+    margin-bottom: 3px;
+}
+
+
+#logic-puzzle-game .lp-stat-value {
+
+    font-size: 17px;
+
+    font-weight: 800;
+
+    color:
+        var(--text);
+}
+
+
+/* ============================================================
+   CONTENIDO CENTRAL
+============================================================ */
+
+#logic-puzzle-game .lp-main {
+
+    flex: 1;
+
+    min-height: 0;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap:
+        clamp(20px, 4vw, 60px);
+}
+
+
+/* ============================================================
+   TABLERO
+============================================================ */
+
+#logic-puzzle-game .lp-board-container {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+
+#logic-puzzle-game .lp-board {
+
+    width:
+        min(
+            58vh,
+            58vw,
+            600px
+        );
+
+    aspect-ratio: 1 / 1;
+
+    padding: 7px;
+
+    display: grid;
+
+    gap: 5px;
+
+    background:
+        #FFFFFF;
+
+    border-radius: 20px;
+
+    border:
+        1px solid
+        var(--border);
+
+    box-shadow:
+
+        0 15px 35px
+        rgba(20,16,14,.08),
+
+        0 3px 10px
+        rgba(20,16,14,.04);
+}
+
+
+/* ============================================================
+   CELDAS
+============================================================ */
+
+#logic-puzzle-game .lp-cell {
+
+    position: relative;
+
+    border-radius: 7px;
+
+    background:
+        #F7F3F0;
+
+    border:
+        1px solid
+        #EDE5E0;
+
+    transition:
+
+        background .15s,
+        transform .15s,
+        border-color .15s;
+}
+
+
+#logic-puzzle-game .lp-cell.target {
+
+    background:
+        #F8F5F2;
+
+    border-color:
+        #E9E1DC;
+}
+
+
+#logic-puzzle-game .lp-cell.preview {
+
+    background:
+        rgba(75,155,114,.20);
+
+    border-color:
+        rgba(75,155,114,.60);
+
+    box-shadow:
+
+        inset 0 0 12px
+        rgba(75,155,114,.14);
+}
+
+
+#logic-puzzle-game .lp-cell.invalid {
+
+    background:
+        rgba(217,74,67,.18);
+
+    border-color:
+        rgba(217,74,67,.60);
+
+    box-shadow:
+        inset 0 0 12px
+        rgba(217,74,67,.08);
+}
+
+
+#logic-puzzle-game .lp-cell.fixed {
+
+    box-shadow:
+
+        inset 0 0 0 2px
+        rgba(255,255,255,.40),
+
+        0 2px 8px
+        rgba(20,16,14,.12);
+
+    cursor: default !important;
+}
+
+
+/* ============================================================
+   PANEL DE PIEZAS
+============================================================ */
+
+#logic-puzzle-game .lp-pieces-panel {
+
+    width:
+        min(330px, 30vw);
+
+    min-width: 250px;
+
+    max-height: 65vh;
+
+    padding: 20px;
+
+    border-radius: 20px;
+
+    background:
+        #FFFFFF;
+
+    border:
+        1px solid
+        var(--border);
+
+    box-shadow:
+
+        0 15px 35px
+        rgba(20,16,14,.08),
+
+        0 3px 10px
+        rgba(20,16,14,.04);
+
+    backdrop-filter:
+        blur(10px);
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+/* ============================================================
+   TÍTULO DEL PANEL
+============================================================ */
+
+#logic-puzzle-game .lp-panel-title {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 5px;
+}
+
+
+#logic-puzzle-game .lp-panel-title h2 {
+
+    margin: 0;
+
+    font-size: 17px;
+
+    color:
+        var(--text);
+}
+
+
+#logic-puzzle-game .lp-panel-title span {
+
+    color:
+        var(--muted);
+
+    font-size: 12px;
+}
+
+
+/* ============================================================
+   AYUDA
+============================================================ */
+
+#logic-puzzle-game .lp-help {
+
+    margin:
+        0 0 15px;
+
+    color:
+        var(--muted);
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   PIEZAS DISPONIBLES
+============================================================ */
+
+#logic-puzzle-game .lp-pieces {
+
+    flex: 1;
+
+    overflow-y: auto;
+
+    padding: 5px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0,1fr)
+        );
+
+    gap: 12px;
+}
+
+
+/* ============================================================
+   SCROLL
+============================================================ */
+
+#logic-puzzle-game .lp-pieces::-webkit-scrollbar {
+
+    width: 7px;
+}
+
+
+#logic-puzzle-game .lp-pieces::-webkit-scrollbar-track {
+
+    background:
+        #F5F0EC;
+
+    border-radius: 10px;
+}
+
+
+#logic-puzzle-game .lp-pieces::-webkit-scrollbar-thumb {
+
+    background:
+        #D8CEC7;
+
+    border-radius: 10px;
+}
+
+
+#logic-puzzle-game .lp-pieces::-webkit-scrollbar-thumb:hover {
+
+    background:
+        #C8BBB3;
+}
+
+
+/* ============================================================
+   ESPACIOS DE PIEZAS
+============================================================ */
+
+#logic-puzzle-game .lp-piece-slot {
+
+    min-height: 95px;
+
+    border-radius: 14px;
+
+    background:
+        #FBF9F7;
+
+    border:
+        1px dashed
+        #DED4CD;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    transition:
+        background .2s ease,
+        border-color .2s ease;
+}
+
+
+#logic-puzzle-game .lp-piece-slot:hover {
+
+    background:
+        #F8F2EF;
+
+    border-color:
+        #D4C5BC;
+}
+
+
+/* ============================================================
+   PIEZAS
+============================================================ */
+
+#logic-puzzle-game .lp-piece {
+
+    position: relative;
+
+    cursor: grab;
+
+    display: grid;
+
+    gap: 3px;
+
+    touch-action: none;
+
+    user-select: none;
+
+    transform-origin:
+        center center;
+
+    transition:
+
+        transform .18s ease,
+
+        filter .18s ease;
+}
+
+
+#logic-puzzle-game .lp-piece:active {
+
+    cursor: grabbing;
+}
+
+
+#logic-puzzle-game .lp-piece:hover {
+
+    transform:
+        scale(1.06);
+
+    filter:
+
+        brightness(1.04)
+
+        drop-shadow(
+            0 5px 10px
+            rgba(20,16,14,.20)
+        );
+}
+
+
+/*
+   PIEZA ARRASTRADA
+*/
+
+#logic-puzzle-game .lp-piece.dragging {
+
+    position: fixed;
+
+    z-index: 9999;
+
+    pointer-events: none;
+
+    margin: 0;
+
+    transform:
+        translate(-50%, -50%)
+        scale(1.1)
+        rotate(2deg);
+
+    filter:
+
+        drop-shadow(
+            0 15px 20px
+            rgba(20,16,14,.28)
+        );
+}
+
+
+/* ============================================================
+   BLOQUES DE LAS PIEZAS
+============================================================ */
+
+#logic-puzzle-game .lp-piece-cell {
+
+    width: 22px;
+
+    height: 22px;
+
+    border-radius: 5px;
+
+    box-shadow:
+
+        inset 0 1px 0
+        rgba(255,255,255,.50),
+
+        inset 0 -2px 0
+        rgba(0,0,0,.10);
+}
+
+
+/* ============================================================
+   BOTONES
+============================================================ */
+
+#logic-puzzle-game .lp-buttons {
+
+    display: flex;
+
+    gap: 8px;
+
+    margin-top: 15px;
+}
+
+
+#logic-puzzle-game .lp-btn {
+
+    flex: 1;
+
+    border: 1px solid
+        var(--border);
+
+    padding: 11px;
+
+    border-radius: 11px;
+
+    color:
+        var(--text);
+
+    font-weight: 700;
+
+    font-size: 12px;
+
+    cursor: pointer;
+
+    background:
+        #FFFFFF;
+
+    transition: .2s;
+}
+
+
+#logic-puzzle-game .lp-btn:hover {
+
+    background:
+        #F8F2EF;
+
+    border-color:
+        #D8C9C0;
+
+    transform:
+        translateY(-1px);
+}
+
+
+#logic-puzzle-game .lp-btn.primary {
+
+    color:
+        #FFFFFF;
+
+    border-color:
+        var(--accent);
+
+    background:
+        var(--accent);
+
+    box-shadow:
+
+        0 5px 15px
+        rgba(226,58,27,.18);
+}
+
+
+#logic-puzzle-game .lp-btn.primary:hover {
+
+    background:
+        var(--accent-dark);
+
+    border-color:
+        var(--accent-dark);
+
+    box-shadow:
+
+        0 7px 18px
+        rgba(226,58,27,.23);
+}
+
+
+/* ============================================================
+   BARRA DE PROGRESO
+============================================================ */
+
+#logic-puzzle-game .lp-progress {
+
+    width:
+        min(500px, 90%);
+
+    height: 6px;
+
+    border-radius: 10px;
+
+    background:
+        #E8E0DB;
+
+    overflow: hidden;
+}
+
+
+#logic-puzzle-game .lp-progress-bar {
+
+    height: 100%;
+
+    width: 0%;
+
+    border-radius: inherit;
+
+    background:
+        var(--accent);
+
+    transition:
+        width .3s ease;
+}
+
+
+/* ============================================================
+   MENSAJE DE VICTORIA
+============================================================ */
+
+#logic-puzzle-game .lp-message {
+
+    position: fixed;
+
+    left: 50%;
+
+    top: 50%;
+
+    transform:
+        translate(-50%, -50%)
+        scale(.9);
+
+    z-index: 2000;
+
+    width:
+        min(420px, 90%);
+
+    padding: 30px;
+
+    border-radius: 22px;
+
+    text-align: center;
+
+    background:
+        #FFFFFF;
+
+    border:
+        1px solid
+        var(--border);
+
+    box-shadow:
+
+        0 25px 70px
+        rgba(20,16,14,.22);
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition: .25s ease;
+}
+
+
+#logic-puzzle-game .lp-message.show {
+
+    opacity: 1;
+
+    pointer-events: auto;
+
+    transform:
+        translate(-50%, -50%)
+        scale(1);
+}
+
+
+#logic-puzzle-game .lp-message-icon {
+
+    font-size: 45px;
+
+    margin-bottom: 10px;
+}
+
+
+#logic-puzzle-game .lp-message h2 {
+
+    margin:
+        0 0 8px;
+
+    font-size: 25px;
+
+    color:
+        var(--text);
+}
+
+
+#logic-puzzle-game .lp-message p {
+
+    margin:
+        0 0 20px;
+
+    color:
+        var(--muted);
+
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   CONFETI
+============================================================ */
+
+#logic-puzzle-game .lp-confetti {
+
+    position: fixed;
+
+    width: 8px;
+
+    height: 12px;
+
+    z-index: 3000;
+
+    pointer-events: none;
+
+    animation:
+
+        lp-confetti-fall
+        1.5s
+        ease-out
+        forwards;
+}
+
+
+@keyframes lp-confetti-fall {
+
+    0% {
+
+        transform:
+            translateY(-20px)
+            rotate(0deg);
+
+        opacity: 1;
+    }
+
+    100% {
+
+        transform:
+            translateY(100vh)
+            rotate(720deg);
+
+        opacity: 0;
+    }
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 850px) {
+
+    #logic-puzzle-game .lp-wrapper {
+
+        padding-top: 65px;
+
+        overflow-y: auto;
+    }
+
+
+    #logic-puzzle-game .lp-header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+
+    #logic-puzzle-game .lp-main {
+
+        flex-direction: column;
+
+        justify-content: flex-start;
+
+        padding-bottom: 30px;
+    }
+
+
+    #logic-puzzle-game .lp-board {
+
+        width:
+            min(
+                85vw,
+                65vh,
+                500px
+            );
+    }
+
+
+    #logic-puzzle-game .lp-pieces-panel {
+
+        width:
+            min(
+                90vw,
+                500px
+            );
+
+        max-height: none;
+    }
+
+
+    #logic-puzzle-game .lp-pieces {
+
+        max-height: 230px;
+    }
+}
+
+
+@media (max-width: 500px) {
+
+    #logic-puzzle-game .lp-wrapper {
+
+        padding-left: 10px;
+
+        padding-right: 10px;
+    }
+
+
+    #logic-puzzle-game .lp-board {
+
+        gap: 2px;
+
+        padding: 4px;
+    }
+
+
+    #logic-puzzle-game .lp-cell {
+
+        border-radius: 3px;
+    }
+
+
+    #logic-puzzle-game .lp-piece-cell {
+
+        width: 18px;
+
+        height: 18px;
+    }
+
+
+    #logic-puzzle-game .lp-stat {
+
+        min-width: 70px;
+
+        padding:
+            7px 9px;
+    }
+}
+
+
+
+</style>
+
+
+<!-- ============================================================
+     FONDO
+============================================================ -->
+
+<div class="lp-background">
+
+    <div class="lp-grid-decoration"></div>
+
+    <div class="lp-orb one"></div>
+
+    <div class="lp-orb two"></div>
+
+</div>
+
+
+<!-- ============================================================
+     BOTÓN VOLVER
+============================================================ -->
+
+
+
+<!-- ============================================================
+     CONTENIDO
+============================================================ -->
+
+<div class="lp-wrapper">
+
+
+    <!-- CABECERA -->
+
+    <div class="lp-header">
+
+        <div class="lp-title-area">
+
+            <h1>
+                🧩 Puzzle Lógico
+            </h1>
+
+            <p>
+                Coloca todas las piezas y completa la cuadrícula.
+            </p>
+
+        </div>
+
+
+        <div class="lp-info">
+
+
+            <div class="lp-stat">
+
+                <span class="lp-stat-label">
+                    Nivel
+                </span>
+
+                <span
+                    class="lp-stat-value"
+                    id="lp-level"
+                >
+                    1
+                </span>
+
+            </div>
+
+
+            <div class="lp-stat">
+
+                <span class="lp-stat-label">
+                    Movimientos
+                </span>
+
+                <span
+                    class="lp-stat-value"
+                    id="lp-moves"
+                >
+                    0
+                </span>
+
+            </div>
+
+
+            <div class="lp-stat">
+
+                <span class="lp-stat-label">
+                    Progreso
+                </span>
+
+                <span
+                    class="lp-stat-value"
+                    id="lp-percent"
+                >
+                    0%
+                </span>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- CONTENIDO PRINCIPAL -->
+
+    <div class="lp-main">
+
+
+        <!-- TABLERO -->
+
+        <div class="lp-board-container">
+
+            <div
+                class="lp-board"
+                id="lp-board"
+            ></div>
+
+
+            <div class="lp-progress">
+
+                <div
+                    class="lp-progress-bar"
+                    id="lp-progress-bar"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PANEL DE PIEZAS -->
+
+        <div class="lp-pieces-panel">
+
+
+            <div class="lp-panel-title">
+
+                <h2>
+                    🧱 Piezas
+                </h2>
+
+                <span
+                    id="lp-piece-count"
+                >
+                    0 restantes
+                </span>
+
+            </div>
+
+
+            <p class="lp-help">
+
+                Arrastra una pieza al tablero.
+                Haz clic sobre una pieza para rotarla.
+
+            </p>
+
+
+            <div
+                class="lp-pieces"
+                id="lp-pieces"
+            ></div>
+
+
+            <div class="lp-buttons">
+
+                <button
+                    class="lp-btn"
+                    id="lp-reset"
+                >
+                    ↻ Reiniciar
+                </button>
+
+
+                <button
+                    class="lp-btn primary"
+                    id="lp-new"
+                >
+                    Nuevo nivel
+                </button>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     MENSAJE DE VICTORIA
+============================================================ -->
+
+<div
+    class="lp-message"
+    id="lp-message"
+>
+
+    <div class="lp-message-icon">
+        🎉
+    </div>
+
+
+    <h2>
+        ¡Nivel completado!
+    </h2>
+
+
+    <p id="lp-message-text">
+        Excelente trabajo.
+    </p>
+
+
+    <button
+        class="lp-btn primary"
+        id="lp-next"
+    >
+        Siguiente nivel →
+    </button>
+
+</div>
+
+
+<script>
+
+(function () {
+
+"use strict";
+
+
+/* ============================================================
+   CONFIGURACIÓN
+============================================================ */
+
+const COLORS = [
+
+    /* Rojo/naranja principal */
+    "#E23A1B",
+
+    /* Terracota */
+    "#D96B4C",
+
+    /* Coral */
+    "#E88A72",
+
+    /* Mostaza suave */
+    "#D6A84F",
+
+    /* Verde */
+    "#5E9F7A",
+
+    /* Rosa cálido */
+    "#C98276",
+
+    /* Naranja */
+    "#E27A3F",
+
+    /* Verde azulado */
+    "#659C91",
+
+    /* Amarillo */
+    "#D5B85A",
+
+    /* Azul grisáceo */
+    "#718C99"
+
+];
+
+
+const SHAPES = [
+
+    // I
+    [
+        [0,0],
+        [0,1],
+        [0,2],
+        [0,3]
+    ],
+
+    // O
+    [
+        [0,0],
+        [0,1],
+        [1,0],
+        [1,1]
+    ],
+
+    // T
+    [
+        [0,1],
+        [1,0],
+        [1,1],
+        [1,2]
+    ],
+
+    // L
+    [
+        [0,0],
+        [1,0],
+        [2,0],
+        [2,1]
+    ],
+
+    // J
+    [
+        [0,1],
+        [1,1],
+        [2,1],
+        [2,0]
+    ],
+
+    // S
+    [
+        [0,1],
+        [0,2],
+        [1,0],
+        [1,1]
+    ],
+
+    // Z
+    [
+        [0,0],
+        [0,1],
+        [1,1],
+        [1,2]
+    ]
+
+];
+
+
+/* ============================================================
+   VARIABLES
+============================================================ */
+
+let level = 1;
+
+let moves = 0;
+
+let boardSize = 6;
+
+let board = [];
+
+let pieces = [];
+
+let fixedCells = new Set();
+
+let dragging = null;
+
+let dragElement = null;
+
+
+/* ============================================================
+   ELEMENTOS
+============================================================ */
+
+const boardElement =
+    document.getElementById(
+        "lp-board"
+    );
+
+const piecesElement =
+    document.getElementById(
+        "lp-pieces"
+    );
+
+const levelElement =
+    document.getElementById(
+        "lp-level"
+    );
+
+const movesElement =
+    document.getElementById(
+        "lp-moves"
+    );
+
+const percentElement =
+    document.getElementById(
+        "lp-percent"
+    );
+
+const progressBar =
+    document.getElementById(
+        "lp-progress-bar"
+    );
+
+const pieceCountElement =
+    document.getElementById(
+        "lp-piece-count"
+    );
+
+const message =
+    document.getElementById(
+        "lp-message"
+    );
+
+const messageText =
+    document.getElementById(
+        "lp-message-text"
+    );
+
+
+/* ============================================================
+   UTILIDADES
+============================================================ */
+
+function shuffle(array) {
+
+    const result = [...array];
+
+    for (
+        let i = result.length - 1;
+        i > 0;
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() *
+                (i + 1)
+            );
+
+        [
+            result[i],
+            result[j]
+        ] =
+        [
+            result[j],
+            result[i]
+        ];
+    }
+
+    return result;
+}
+
+
+function cloneShape(shape) {
+
+    return shape.map(
+        p => [p[0], p[1]]
+    );
+}
+
+
+function normalizeShape(shape) {
+
+    const minRow =
+        Math.min(
+            ...shape.map(
+                p => p[0]
+            )
+        );
+
+    const minCol =
+        Math.min(
+            ...shape.map(
+                p => p[1]
+            )
+        );
+
+    return shape
+
+        .map(
+            p => [
+                p[0] - minRow,
+                p[1] - minCol
+            ]
+        )
+
+        .sort(
+            (a,b) =>
+                a[0] - b[0] ||
+                a[1] - b[1]
+        );
+}
+
+
+function rotateShape(shape) {
+
+    return normalizeShape(
+
+        shape.map(
+            p => [
+                p[1],
+                -p[0]
+            ]
+        )
+
+    );
+}
+
+
+function getAllRotations(shape) {
+
+    const rotations = [];
+
+    let current =
+        normalizeShape(shape);
+
+
+    for (
+        let i = 0;
+        i < 4;
+        i++
+    ) {
+
+        const exists =
+            rotations.some(
+                r =>
+                    JSON.stringify(r) ===
+                    JSON.stringify(current)
+            );
+
+
+        if (!exists) {
+
+            rotations.push(
+                cloneShape(current)
+            );
+
+        }
+
+
+        current =
+            rotateShape(current);
+    }
+
+
+    return rotations;
+}
+
+
+/* ============================================================
+   COMPROBAR COLOCACIÓN
+============================================================ */
+
+function canPlace(
+    shape,
+    row,
+    col,
+    occupied
+) {
+
+    for (const [r,c] of shape) {
+
+        const rr =
+            row + r;
+
+        const cc =
+            col + c;
+
+
+        if (
+            rr < 0 ||
+            rr >= boardSize ||
+            cc < 0 ||
+            cc >= boardSize
+        ) {
+
+            return false;
+        }
+
+
+        const key =
+            rr + "," + cc;
+
+
+        if (
+            occupied.has(key)
+        ) {
+
+            return false;
+        }
+    }
+
+
+    return true;
+}
+
+
+/* ============================================================
+   GENERAR SOLUCIÓN
+============================================================ */
+
+function generateSolution() {
+
+    const occupied =
+        new Set();
+
+    const solution =
+        [];
+
+    const maxAttempts =
+        25000;
+
+    let attempts =
+        0;
+
+
+    function solve() {
+
+        attempts++;
+
+
+        if (
+            attempts >
+            maxAttempts
+        ) {
+
+            return false;
+        }
+
+
+        if (
+            occupied.size ===
+            boardSize *
+            boardSize
+        ) {
+
+            return true;
+        }
+
+
+        let firstRow = -1;
+
+        let firstCol = -1;
+
+
+        for (
+            let r = 0;
+            r < boardSize;
+            r++
+        ) {
+
+            for (
+                let c = 0;
+                c < boardSize;
+                c++
+            ) {
+
+                if (
+                    !occupied.has(
+                        r + "," + c
+                    )
+                ) {
+
+                    firstRow = r;
+
+                    firstCol = c;
+
+                    break;
+                }
+            }
+
+
+            if (
+                firstRow !== -1
+            ) {
+
+                break;
+            }
+        }
+
+
+        let candidates = [];
+
+
+        for (
+            let shapeIndex = 0;
+            shapeIndex <
+            SHAPES.length;
+            shapeIndex++
+        ) {
+
+            const rotations =
+                getAllRotations(
+                    SHAPES[
+                        shapeIndex
+                    ]
+                );
+
+
+            for (
+                const shape
+                of rotations
+            ) {
+
+                for (
+                    const [sr,sc]
+                    of shape
+                ) {
+
+                    const row =
+                        firstRow - sr;
+
+                    const col =
+                        firstCol - sc;
+
+
+                    if (
+                        canPlace(
+                            shape,
+                            row,
+                            col,
+                            occupied
+                        )
+                    ) {
+
+                        candidates.push({
+
+                            shape:
+                                cloneShape(
+                                    shape
+                                ),
+
+                            row,
+
+                            col,
+
+                            shapeIndex
+                        });
+                    }
+                }
+            }
+        }
+
+
+        candidates =
+            shuffle(
+                candidates
+            );
+
+
+        for (
+            const candidate
+            of candidates
+        ) {
+
+            const {
+                shape,
+                row,
+                col,
+                shapeIndex
+            } =
+                candidate;
+
+
+            const cells =
+                [];
+
+
+            for (
+                const [r,c]
+                of shape
+            ) {
+
+                const rr =
+                    row + r;
+
+                const cc =
+                    col + c;
+
+
+                const key =
+                    rr + "," + cc;
+
+
+                occupied.add(
+                    key
+                );
+
+
+                cells.push({
+
+                    row: rr,
+                    col: cc
+                });
+            }
+
+
+            solution.push({
+
+                shape:
+                    cloneShape(
+                        shape
+                    ),
+
+                row,
+
+                col,
+
+                shapeIndex,
+
+                color:
+                    COLORS[
+                        shapeIndex %
+                        COLORS.length
+                    ]
+            });
+
+
+            if (
+                solve()
+            ) {
+
+                return true;
+            }
+
+
+            solution.pop();
+
+
+            for (
+                const cell
+                of cells
+            ) {
+
+                occupied.delete(
+
+                    cell.row +
+                    "," +
+                    cell.col
+
+                );
+            }
+        }
+
+
+        return false;
+    }
+
+
+    for (
+        let attempt = 0;
+        attempt < 8;
+        attempt++
+    ) {
+
+        occupied.clear();
+
+        solution.length = 0;
+
+        attempts = 0;
+
+
+        if (
+            solve()
+        ) {
+
+            return solution;
+        }
+    }
+
+
+    return null;
+}
+
+
+/* ============================================================
+   CONFIGURACIÓN DEL NIVEL
+============================================================ */
+
+function getLevelSettings() {
+
+    if (
+        level <= 3
+    ) {
+
+        return {
+
+            size: 6,
+
+            fixedPercent:
+                0.35 -
+                level * 0.04
+
+        };
+    }
+
+
+    if (
+        level <= 6
+    ) {
+
+        return {
+
+            size: 8,
+
+            fixedPercent:
+                0.28 -
+                (level - 3) *
+                0.035
+
+        };
+    }
+
+
+    return {
+
+        size:
+            Math.min(
+
+                10,
+
+                8 +
+                Math.floor(
+                    (level - 7) /
+                    3
+                ) *
+                2
+
+            ),
+
+        fixedPercent:
+            Math.max(
+
+                0.10,
+
+                0.20 -
+                (level - 7) *
+                0.015
+
+            )
+    };
+}
+
+
+/* ============================================================
+   CREAR NIVEL
+============================================================ */
+
+function createLevel() {
+
+    const settings =
+        getLevelSettings();
+
+
+    boardSize =
+        settings.size;
+
+
+    const solution =
+        generateSolution();
+
+
+    if (!solution) {
+
+        console.warn(
+            "No se pudo generar el nivel."
+        );
+
+
+        setTimeout(
+            createLevel,
+            50
+        );
+
+
+        return;
+    }
+
+
+    board =
+        Array.from(
+
+            {
+                length:
+                    boardSize
+            },
+
+            () =>
+                Array(
+                    boardSize
+                ).fill(null)
+
+        );
+
+
+    fixedCells =
+        new Set();
+
+
+    const shuffledSolution =
+        shuffle(solution);
+
+
+    const fixedCount =
+        Math.max(
+
+            1,
+
+            Math.floor(
+
+                solution.length *
+                settings.fixedPercent
+
+            )
+        );
+
+
+    const fixedPieces =
+        shuffledSolution.slice(
+            0,
+            fixedCount
+        );
+
+
+    const movablePieces =
+        solution.filter(
+
+            piece =>
+                !fixedPieces.includes(
+                    piece
+                )
+
+        );
+
+
+    for (
+        const piece
+        of fixedPieces
+    ) {
+
+        for (
+            const [r,c]
+            of piece.shape
+        ) {
+
+            const rr =
+                piece.row + r;
+
+            const cc =
+                piece.col + c;
+
+
+            board[rr][cc] = {
+
+                fixed: true,
+
+                color:
+                    piece.color
+            };
+
+
+            fixedCells.add(
+
+                rr +
+                "," +
+                cc
+
+            );
+        }
+    }
+
+
+    pieces =
+        movablePieces.map(
+
+            (piece, index) => ({
+
+                id:
+                    "piece-" +
+                    Date.now() +
+                    "-" +
+                    index,
+
+                shape:
+                    cloneShape(
+                        piece.shape
+                    ),
+
+                color:
+                    piece.color,
+
+                shapeIndex:
+                    piece.shapeIndex,
+
+                placed: false,
+
+                row: null,
+
+                col: null,
+
+                rotation: 0
+
+            })
+
+        );
+
+
+    moves = 0;
+
+
+    message.classList.remove(
+        "show"
+    );
+
+
+    updateStats();
+
+    renderBoard();
+
+    renderPieces();
+}
+
+
+/* ============================================================
+   RENDERIZAR TABLERO
+============================================================ */
+
+function renderBoard() {
+
+    boardElement.innerHTML = "";
+
+
+    boardElement.style.gridTemplateColumns =
+
+        `repeat(
+            ${boardSize},
+            1fr
+        )`;
+
+
+    for (
+        let r = 0;
+        r < boardSize;
+        r++
+    ) {
+
+        for (
+            let c = 0;
+            c < boardSize;
+            c++
+        ) {
+
+            const cell =
+                document.createElement(
+                    "div"
+                );
+
+
+            cell.className =
+                "lp-cell target";
+
+
+            const data =
+                board[r][c];
+
+
+            if (data) {
+
+                cell.classList.remove(
+                    "target"
+                );
+
+
+                cell.classList.add(
+
+                    data.fixed
+                        ? "fixed"
+                        : "occupied"
+
+                );
+
+
+                cell.style.background =
+                    data.color;
+
+
+                cell.style.boxShadow =
+
+                    `
+
+                    inset 0 1px 0
+                        rgba(255,255,255,.50),
+
+                    inset 0 -3px 0
+                        rgba(0,0,0,.10),
+
+                    0 2px 8px
+                        ${data.color}35
+
+                    `;
+
+
+                if (
+                    !data.fixed &&
+                    data.pieceId
+                ) {
+
+                    cell.style.cursor =
+                        "grab";
+
+
+                    cell.addEventListener(
+
+                        "pointerdown",
+
+                        function(event) {
+
+                            startPlacedPieceDrag(
+
+                                event,
+
+                                data.pieceId
+
+                            );
+
+                        }
+
+                    );
+                }
+            }
+
+
+            cell.dataset.row = r;
+
+            cell.dataset.col = c;
+
+
+            boardElement.appendChild(
+                cell
+            );
+        }
+    }
+}
+
+
+/* ============================================================
+   RENDERIZAR PIEZAS DEL PANEL
+============================================================ */
+
+function renderPieces() {
+
+    piecesElement.innerHTML = "";
+
+
+    const available =
+        pieces.filter(
+            p => !p.placed
+        );
+
+
+    pieceCountElement.textContent =
+
+        available.length +
+
+        (
+
+            available.length === 1
+
+                ? " restante"
+
+                : " restantes"
+
+        );
+
+
+    for (
+        const piece
+        of available
+    ) {
+
+        const slot =
+            document.createElement(
+                "div"
+            );
+
+
+        slot.className =
+            "lp-piece-slot";
+
+
+        const element =
+            createPieceElement(
+                piece
+            );
+
+
+        slot.appendChild(
+            element
+        );
+
+
+        piecesElement.appendChild(
+            slot
+        );
+    }
+
+
+    updateStats();
+}
+
+
+/* ============================================================
+   CREAR PIEZA VISUAL
+============================================================ */
+
+function createPieceElement(piece) {
+
+    const element =
+        document.createElement(
+            "div"
+        );
+
+
+    element.className =
+        "lp-piece";
+
+
+    element.dataset.id =
+        piece.id;
+
+
+    const shape =
+        normalizeShape(
+            piece.shape
+        );
+
+
+    const maxRow =
+        Math.max(
+            ...shape.map(
+                p => p[0]
+            )
+        );
+
+
+    const maxCol =
+        Math.max(
+            ...shape.map(
+                p => p[1]
+            )
+        );
+
+
+    element.style.gridTemplateRows =
+
+        `repeat(
+            ${maxRow + 1},
+            22px
+        )`;
+
+
+    element.style.gridTemplateColumns =
+
+        `repeat(
+            ${maxCol + 1},
+            22px
+        )`;
+
+
+    for (
+        const [r,c]
+        of shape
+    ) {
+
+        const block =
+            document.createElement(
+                "div"
+            );
+
+
+        block.className =
+            "lp-piece-cell";
+
+
+        block.style.gridRow =
+            r + 1;
+
+
+        block.style.gridColumn =
+            c + 1;
+
+
+        block.style.background =
+            piece.color;
+
+
+        block.style.boxShadow =
+
+            `
+
+            inset 0 1px 0
+                rgba(255,255,255,.50),
+
+            inset 0 -2px 0
+                rgba(0,0,0,.10),
+
+            0 2px 6px
+                ${piece.color}35
+
+            `;
+
+
+        element.appendChild(
+            block
+        );
+    }
+
+
+    /* Click = rotar */
+
+    element.addEventListener(
+
+        "click",
+
+        function() {
+
+            if (
+                element.dataset.wasDragged ===
+                "true"
+            ) {
+
+                element.dataset.wasDragged =
+                    "false";
+
+                return;
+            }
+
+
+            rotatePiece(
+                piece
+            );
+
+
+            renderPieces();
+        }
+
+    );
+
+
+    /* Arrastrar */
+
+    element.addEventListener(
+
+        "pointerdown",
+
+        startDrag
+
+    );
+
+
+    return element;
+}
+
+
+/* ============================================================
+   ROTAR PIEZA
+============================================================ */
+
+function rotatePiece(piece) {
+
+    piece.shape =
+        rotateShape(
+            piece.shape
+        );
+
+
+    piece.rotation =
+        (
+            piece.rotation + 1
+        ) % 4;
+}
+
+
+/* ============================================================
+   INICIAR DRAG DESDE EL PANEL
+============================================================ */
+
+function startDrag(event) {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+
+    const sourceElement =
+        event.currentTarget;
+
+
+    const id =
+        sourceElement.dataset.id;
+
+
+    const piece =
+        pieces.find(
+            p => p.id === id
+        );
+
+
+    if (!piece) {
+        return;
+    }
+
+
+    dragging = {
+
+        piece: piece,
+
+        startX:
+            event.clientX,
+
+        startY:
+            event.clientY,
+
+        moved: false,
+
+        fromBoard: false,
+
+        originalRow: null,
+
+        originalCol: null,
+
+        sourceElement:
+            sourceElement
+    };
+
+
+    dragElement =
+        createPieceElement(
+            piece
+        );
+
+
+    document
+        .getElementById(
+            "logic-puzzle-game"
+        )
+        .appendChild(
+            dragElement
+        );
+
+
+    sourceElement.style.visibility =
+        "hidden";
+
+
+    dragElement.classList.add(
+        "dragging"
+    );
+
+
+    dragElement.dataset.wasDragged =
+        "true";
+
+
+    dragElement.style.left =
+        event.clientX + "px";
+
+    dragElement.style.top =
+        event.clientY + "px";
+
+
+    document.addEventListener(
+        "pointermove",
+        dragMove
+    );
+
+
+    document.addEventListener(
+        "pointerup",
+        endDrag,
+        { once: true }
+    );
+}
+
+
+/* ============================================================
+   INICIAR DRAG DE UNA PIEZA YA COLOCADA
+============================================================ */
+
+function startPlacedPieceDrag(
+    event,
+    pieceId
+) {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+
+    const piece =
+        pieces.find(
+            p => p.id === pieceId
+        );
+
+
+    if (!piece) {
+        return;
+    }
+
+
+    const originalRow =
+        piece.row;
+
+    const originalCol =
+        piece.col;
+
+
+    removePieceFromBoard(
+        piece
+    );
+
+
+    dragElement =
+        createPieceElement(
+            piece
+        );
+
+
+    document
+        .getElementById(
+            "logic-puzzle-game"
+        )
+        .appendChild(
+            dragElement
+        );
+
+
+    dragging = {
+
+        piece: piece,
+
+        startX:
+            event.clientX,
+
+        startY:
+            event.clientY,
+
+        moved: false,
+
+        fromBoard: true,
+
+        originalRow:
+            originalRow,
+
+        originalCol:
+            originalCol
+    };
+
+
+    dragElement.dataset.wasDragged =
+        "true";
+
+
+    dragElement.classList.add(
+        "dragging"
+    );
+
+
+    dragElement.style.left =
+        event.clientX + "px";
+
+    dragElement.style.top =
+        event.clientY + "px";
+
+
+    document.addEventListener(
+        "pointermove",
+        dragMove
+    );
+
+
+    document.addEventListener(
+        "pointerup",
+        endDrag,
+        { once: true }
+    );
+
+
+    renderBoard();
+
+    updateStats();
+}
+
+
+/* ============================================================
+   MOVER PIEZA
+============================================================ */
+
+function dragMove(event) {
+
+    if (
+        !dragging ||
+        !dragElement
+    ) {
+
+        return;
+    }
+
+
+    const dx =
+        event.clientX -
+        dragging.startX;
+
+
+    const dy =
+        event.clientY -
+        dragging.startY;
+
+
+    if (
+        Math.abs(dx) > 5 ||
+        Math.abs(dy) > 5
+    ) {
+
+        dragging.moved =
+            true;
+
+
+        dragElement.dataset.wasDragged =
+            "true";
+    }
+
+
+    dragElement.style.left =
+        event.clientX + "px";
+
+
+    dragElement.style.top =
+        event.clientY + "px";
+
+
+    clearPreview();
+
+
+    if (
+        !dragging.moved
+    ) {
+
+        return;
+    }
+
+
+    const position =
+        getBoardPosition(
+
+            event.clientX,
+
+            event.clientY,
+
+            dragging.piece
+
+        );
+
+
+    if (position) {
+
+        const valid =
+            canPlacePiece(
+
+                dragging.piece,
+
+                position.row,
+
+                position.col
+
+            );
+
+
+        showPreview(
+
+            dragging.piece,
+
+            position.row,
+
+            position.col,
+
+            valid
+
+        );
+    }
+}
+
+
+/* ============================================================
+   OBTENER POSICIÓN EN TABLERO
+============================================================ */
+
+function getBoardPosition(
+    x,
+    y,
+    piece
+) {
+
+    const rect =
+        boardElement.getBoundingClientRect();
+
+
+    if (
+
+        x < rect.left ||
+        x > rect.right ||
+        y < rect.top ||
+        y > rect.bottom
+
+    ) {
+
+        return null;
+    }
+
+
+    const cellWidth =
+        rect.width /
+        boardSize;
+
+
+    const cellHeight =
+        rect.height /
+        boardSize;
+
+
+    const col =
+        Math.floor(
+
+            (
+                x -
+                rect.left
+            ) /
+            cellWidth
+
+        );
+
+
+    const row =
+        Math.floor(
+
+            (
+                y -
+                rect.top
+            ) /
+            cellHeight
+
+        );
+
+
+    return {
+
+        row,
+
+        col
+    };
+}
+
+
+/* ============================================================
+   COMPROBAR PIEZA
+============================================================ */
+
+function canPlacePiece(
+    piece,
+    row,
+    col
+) {
+
+    for (
+        const [r,c]
+        of piece.shape
+    ) {
+
+        const rr =
+            row + r;
+
+        const cc =
+            col + c;
+
+
+        if (
+
+            rr < 0 ||
+            rr >= boardSize ||
+            cc < 0 ||
+            cc >= boardSize
+
+        ) {
+
+            return false;
+        }
+
+
+        if (
+            board[rr][cc]
+        ) {
+
+            return false;
+        }
+    }
+
+
+    return true;
+}
+
+
+/* ============================================================
+   PREVISUALIZACIÓN
+============================================================ */
+
+function showPreview(
+    piece,
+    row,
+    col,
+    valid
+) {
+
+    for (
+        const [r,c]
+        of piece.shape
+    ) {
+
+        const rr =
+            row + r;
+
+        const cc =
+            col + c;
+
+
+        if (
+
+            rr < 0 ||
+            rr >= boardSize ||
+            cc < 0 ||
+            cc >= boardSize
+
+        ) {
+
+            continue;
+        }
+
+
+        const index =
+            rr *
+            boardSize +
+            cc;
+
+
+        const cell =
+            boardElement.children[
+                index
+            ];
+
+
+        if (!cell) {
+            continue;
+        }
+
+
+        cell.classList.add(
+
+            valid
+                ? "preview"
+                : "invalid"
+
+        );
+    }
+}
+
+
+/* ============================================================
+   LIMPIAR PREVISUALIZACIÓN
+============================================================ */
+
+function clearPreview() {
+
+    boardElement
+
+        .querySelectorAll(
+            ".preview,.invalid"
+        )
+
+        .forEach(
+
+            cell =>
+                cell.classList.remove(
+                    "preview",
+                    "invalid"
+                )
+
+        );
+}
+
+
+/* ============================================================
+   SOLTAR PIEZA
+============================================================ */
+
+function endDrag(event) {
+
+    document.removeEventListener(
+
+        "pointermove",
+
+        dragMove
+
+    );
+
+
+    if (!dragging) {
+
+        cleanupDrag();
+
+        return;
+    }
+
+
+    const currentDrag =
+        dragging;
+
+
+    const piece =
+        currentDrag.piece;
+
+
+    const moved =
+        currentDrag.moved;
+
+
+    clearPreview();
+
+
+    if (!moved) {
+
+        if (
+            currentDrag.fromBoard
+        ) {
+
+            restorePiece(
+                piece,
+                currentDrag.originalRow,
+                currentDrag.originalCol
+            );
+
+        }
+        else {
+
+            rotatePiece(
+                piece
+            );
+        }
+
+
+        cleanupDrag();
+
+        renderBoard();
+
+        renderPieces();
+
+        updateStats();
+
+        return;
+    }
+
+
+    const position =
+        getBoardPosition(
+
+            event.clientX,
+
+            event.clientY,
+
+            piece
+
+        );
+
+
+    if (
+
+        position &&
+
+        canPlacePiece(
+
+            piece,
+
+            position.row,
+
+            position.col
+
+        )
+
+    ) {
+
+        placePiece(
+
+            piece,
+
+            position.row,
+
+            position.col
+
+        );
+
+    }
+
+    else {
+
+        if (
+            currentDrag.fromBoard
+        ) {
+
+            restorePiece(
+
+                piece,
+
+                currentDrag.originalRow,
+
+                currentDrag.originalCol
+
+            );
+
+        }
+    }
+
+
+    cleanupDrag();
+
+    renderBoard();
+
+    renderPieces();
+
+    updateStats();
+
+    checkWin();
+}
+
+
+/* ============================================================
+   COLOCAR PIEZA
+============================================================ */
+
+function placePiece(
+    piece,
+    row,
+    col
+) {
+
+    piece.row =
+        row;
+
+    piece.col =
+        col;
+
+    piece.placed =
+        true;
+
+
+    for (
+        const [r,c]
+        of piece.shape
+    ) {
+
+        const rr =
+            row + r;
+
+        const cc =
+            col + c;
+
+
+        board[rr][cc] = {
+
+            fixed: false,
+
+            color:
+                piece.color,
+
+            pieceId:
+                piece.id
+        };
+    }
+
+
+    moves++;
+}
+
+
+/* ============================================================
+   RETIRAR PIEZA DEL TABLERO
+============================================================ */
+
+function removePieceFromBoard(
+    piece
+) {
+
+    if (
+        piece.row === null ||
+        piece.col === null ||
+        piece.row === undefined ||
+        piece.col === undefined
+    ) {
+
+        return;
+    }
+
+
+    for (
+        const [r,c]
+        of piece.shape
+    ) {
+
+        const rr =
+            piece.row + r;
+
+        const cc =
+            piece.col + c;
+
+
+        if (
+
+            rr >= 0 &&
+            rr < boardSize &&
+            cc >= 0 &&
+            cc < boardSize
+
+        ) {
+
+            const cell =
+                board[rr][cc];
+
+
+            if (
+
+                cell &&
+                cell.pieceId ===
+                piece.id
+
+            ) {
+
+                board[rr][cc] =
+                    null;
+            }
+        }
+    }
+
+
+    piece.placed =
+        false;
+}
+
+
+/* ============================================================
+   RESTAURAR PIEZA
+============================================================ */
+
+function restorePiece(
+    piece,
+    row,
+    col
+) {
+
+    piece.row =
+        row;
+
+    piece.col =
+        col;
+
+    piece.placed =
+        true;
+
+
+    for (
+        const [r,c]
+        of piece.shape
+    ) {
+
+        const rr =
+            row + r;
+
+        const cc =
+            col + c;
+
+
+        board[rr][cc] = {
+
+            fixed: false,
+
+            color:
+                piece.color,
+
+            pieceId:
+                piece.id
+        };
+    }
+}
+
+
+/* ============================================================
+   LIMPIAR DRAG
+============================================================ */
+
+function cleanupDrag() {
+
+    if (
+        dragElement
+    ) {
+
+        if (
+
+            dragElement.parentNode &&
+            dragElement.parentNode !==
+            piecesElement
+
+        ) {
+
+            if (
+                dragElement.classList.contains(
+                    "dragging"
+                )
+            ) {
+
+                dragElement.parentNode.removeChild(
+                    dragElement
+                );
+            }
+        }
+
+
+        dragElement.classList.remove(
+            "dragging"
+        );
+
+        dragElement.style.left =
+            "";
+
+        dragElement.style.top =
+            "";
+    }
+
+
+    dragging =
+        null;
+
+    dragElement =
+        null;
+}
+
+
+/* ============================================================
+   ESTADÍSTICAS
+============================================================ */
+
+function updateStats() {
+
+    levelElement.textContent =
+        level;
+
+
+    movesElement.textContent =
+        moves;
+
+
+    let occupied =
+        0;
+
+
+    for (
+        let r = 0;
+        r < boardSize;
+        r++
+    ) {
+
+        for (
+            let c = 0;
+            c < boardSize;
+            c++
+        ) {
+
+            if (
+                board[r][c]
+            ) {
+
+                occupied++;
+            }
+        }
+    }
+
+
+    const percent =
+        Math.round(
+
+            occupied /
+            (
+                boardSize *
+                boardSize
+            ) *
+            100
+
+        );
+
+
+    percentElement.textContent =
+        percent + "%";
+
+
+    progressBar.style.width =
+        percent + "%";
+}
+
+
+/* ============================================================
+   COMPROBAR VICTORIA
+============================================================ */
+
+function checkWin() {
+
+    const total =
+        boardSize *
+        boardSize;
+
+
+    let occupied =
+        0;
+
+
+    for (
+        let r = 0;
+        r < boardSize;
+        r++
+    ) {
+
+        for (
+            let c = 0;
+            c < boardSize;
+            c++
+        ) {
+
+            if (
+                board[r][c]
+            ) {
+
+                occupied++;
+            }
+        }
+    }
+
+
+    const remaining =
+        pieces.filter(
+            p => !p.placed
+        ).length;
+
+
+    if (
+
+        occupied === total &&
+        remaining === 0
+
+    ) {
+
+        setTimeout(
+
+            showVictory,
+
+            250
+
+        );
+    }
+}
+
+
+/* ============================================================
+   VICTORIA
+============================================================ */
+
+function showVictory() {
+
+    const messageList = [
+
+        "¡Excelente! Encontraste la solución.",
+
+        "¡Muy bien! Tu razonamiento lógico fue correcto.",
+
+        "¡Nivel superado! Cada pieza encontró su lugar.",
+
+        "¡Perfecto! ¿Puedes superar el siguiente?"
+
+    ];
+
+
+    messageText.textContent =
+
+        messageList[
+
+            Math.floor(
+
+                Math.random() *
+                messageList.length
+
+            )
+
+        ];
+
+
+    message.classList.add(
+        "show"
+    );
+
+
+    createConfetti();
+}
+
+
+/* ============================================================
+   CONFETI
+============================================================ */
+
+function createConfetti() {
+
+    for (
+        let i = 0;
+        i < 45;
+        i++
+    ) {
+
+        const confetti =
+            document.createElement(
+                "div"
+            );
+
+
+        confetti.className =
+            "lp-confetti";
+
+
+        confetti.style.left =
+            Math.random() *
+            100 +
+            "vw";
+
+
+        confetti.style.top =
+            "-20px";
+
+
+        confetti.style.background =
+            COLORS[
+
+                Math.floor(
+
+                    Math.random() *
+                    COLORS.length
+
+                )
+
+            ];
+
+
+        confetti.style.animationDelay =
+            Math.random() *
+            .5 +
+            "s";
+
+
+        document.body.appendChild(
+            confetti
+        );
+
+
+        setTimeout(
+
+            () =>
+                confetti.remove(),
+
+            2200
+
+        );
+    }
+}
+
+
+/* ============================================================
+   SIGUIENTE NIVEL
+============================================================ */
+
+function nextLevel() {
+
+    message.classList.remove(
+        "show"
+    );
+
+
+    level++;
+
+
+    createLevel();
+}
+
+
+/* ============================================================
+   REINICIAR
+============================================================ */
+
+function resetLevel() {
+
+    createLevel();
+}
+
+
+/* ============================================================
+   BOTONES
+============================================================ */
+
+document
+
+    .getElementById(
+        "lp-reset"
+    )
+
+    .addEventListener(
+
+        "click",
+
+        resetLevel
+
+    );
+
+
+document
+
+    .getElementById(
+        "lp-new"
+    )
+
+    .addEventListener(
+
+        "click",
+
+        function() {
+
+            level++;
+
+            createLevel();
+
+        }
+
+    );
+
+
+document
+
+    .getElementById(
+        "lp-next"
+    )
+
+    .addEventListener(
+
+        "click",
+
+        nextLevel
+
+    );
+
+
+/* ============================================================
+   INICIO
+============================================================ */
+
+createLevel();
+
+
+})();
+
+</script>
+
+</div>

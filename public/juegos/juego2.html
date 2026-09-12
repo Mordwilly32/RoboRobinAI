@@ -1,0 +1,3397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Juego de Matemáticas - La Balanza</title>
+
+<style>
+
+/* =========================================================
+   CONFIGURACIÓN GENERAL
+========================================================= */
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+body {
+    min-height: 100vh;
+}
+
+
+/* =========================================================
+   CONTENEDOR PRINCIPAL
+========================================================= */
+
+#math-balance-game {
+
+    --bg: #f7f4f1;
+
+    --surface: #fffdfb;
+
+    --surface-soft: #faf8f6;
+
+    --border: #e5ded8;
+
+    --border-dark: #d8cec7;
+
+    --text: #211d1b;
+
+    --muted: #817871;
+
+    --accent: #ef3b20;
+
+    --accent-hover: #d9321c;
+
+    --accent-soft: #ffe4df;
+
+    --success: #2f9e66;
+
+    --success-soft: #e3f5eb;
+
+    --danger: #d94b3d;
+
+    --danger-soft: #fbe5e1;
+
+    --warning: #e49b24;
+
+    --dark: #171310;
+
+    width: 100%;
+    height: 100vh;
+    min-height: 0;
+
+    position: relative;
+    overflow: hidden;
+
+    color: var(--text);
+
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background: var(--bg);
+
+    box-sizing: border-box;
+}
+
+#math-balance-game *,
+#math-balance-game *::before,
+#math-balance-game *::after {
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   FONDO
+========================================================= */
+
+#math-balance-game .mb-background-grid,
+#math-balance-game .mb-orb {
+    display: none;
+}
+
+
+/* =========================================================
+   CONTENIDO
+========================================================= */
+
+#math-balance-game .mb-content {
+
+    position: relative;
+
+    z-index: 2;
+
+    width: min(1250px, 94%);
+
+    height: 100%;
+
+    min-height: 0;
+
+    margin: auto;
+
+    padding: 22px 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+#math-balance-game .mb-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+    margin-bottom: 16px;
+
+    flex-shrink: 0;
+}
+
+#math-balance-game .mb-title-area {
+    min-width: 0;
+}
+
+#math-balance-game .mb-title-area h1 {
+
+    margin: 0;
+
+    font-size: clamp(26px, 4vw, 42px);
+
+    line-height: 1;
+
+    letter-spacing: -1.5px;
+
+    color: var(--text);
+
+    font-weight: 800;
+}
+
+#math-balance-game .mb-title-area p {
+
+    margin: 9px 0 0;
+
+    color: var(--muted);
+
+    font-size: 14px;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   ESTADÍSTICAS
+========================================================= */
+
+#math-balance-game .mb-stats {
+
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+    justify-content: flex-end;
+
+    flex-shrink: 0;
+}
+
+#math-balance-game .mb-stat {
+
+    min-width: 92px;
+
+    padding: 10px 14px;
+
+    border-radius: 14px;
+
+    border: 1px solid var(--border);
+
+    background: var(--surface);
+
+    text-align: center;
+
+    box-shadow:
+        0 5px 16px rgba(39, 27, 20, 0.05);
+}
+
+#math-balance-game .mb-stat-label {
+
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 10px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+
+    font-weight: 700;
+}
+
+#math-balance-game .mb-stat-value {
+
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 19px;
+
+    font-weight: 800;
+
+    color: var(--text);
+}
+
+
+/* =========================================================
+   ÁREA PRINCIPAL
+========================================================= */
+
+#math-balance-game .mb-main {
+
+    flex: 1;
+
+    min-height: 0;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        340px;
+
+    gap: 18px;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   PANEL DE BALANZA
+========================================================= */
+
+#math-balance-game .mb-balance-panel {
+
+    position: relative;
+
+    min-width: 0;
+
+    min-height: 0;
+
+    height: 100%;
+
+    padding: 20px;
+
+    border-radius: 24px;
+
+    border: 1px solid var(--border);
+
+    background: var(--surface);
+
+    box-shadow:
+        0 14px 35px rgba(39, 27, 20, 0.07);
+
+    overflow: hidden;
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+/* =========================================================
+   OBJETIVO
+========================================================= */
+
+#math-balance-game .mb-target-area {
+
+    display: flex;
+
+    justify-content: center;
+
+    margin-bottom: 10px;
+
+    flex-shrink: 0;
+}
+
+#math-balance-game .mb-target-card {
+
+    text-align: center;
+
+    padding: 10px 24px;
+
+    border-radius: 17px;
+
+    border: 1px solid #f0c4bc;
+
+    background: var(--accent-soft);
+}
+
+#math-balance-game .mb-target-label {
+
+    color: var(--muted);
+
+    font-size: 11px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1.5px;
+
+    font-weight: 700;
+}
+
+#math-balance-game .mb-target-value {
+
+    margin-top: 2px;
+
+    font-size: 30px;
+
+    font-weight: 900;
+
+    color: var(--accent);
+}
+
+
+/* =========================================================
+   INFORMACIÓN DE BALANZA
+========================================================= */
+
+#math-balance-game .mb-balance-info {
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    margin-bottom: 8px;
+
+    flex-wrap: wrap;
+
+    flex-shrink: 0;
+}
+
+#math-balance-game .mb-info-chip {
+
+    padding: 7px 12px;
+
+    border-radius: 10px;
+
+    background: var(--surface-soft);
+
+    border: 1px solid var(--border);
+
+    font-size: 13px;
+
+    color: var(--muted);
+}
+
+#math-balance-game .mb-info-chip strong {
+
+    color: var(--text);
+
+    font-weight: 800;
+}
+
+#math-balance-game .mb-difference {
+
+    transition:
+        color 0.25s ease,
+        background 0.25s ease,
+        border-color 0.25s ease;
+}
+
+#math-balance-game .mb-difference.correct {
+
+    color: var(--success);
+
+    background: var(--success-soft);
+
+    border-color: #b9e5ca;
+}
+
+#math-balance-game .mb-difference.correct strong {
+    color: var(--success);
+}
+
+
+/* =========================================================
+   ESCENARIO DE BALANZA
+========================================================= */
+
+#math-balance-game .mb-scale-scene {
+
+    position: relative;
+
+    width: 100%;
+
+    flex: 1;
+
+    min-height: 0;
+
+    margin-top: 5px;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   BASE
+========================================================= */
+
+#math-balance-game .mb-base {
+
+    position: absolute;
+
+    bottom: 20px;
+
+    left: 50%;
+
+    width: 190px;
+
+    height: 18px;
+
+    transform: translateX(-50%);
+
+    border-radius: 20px;
+
+    background: var(--dark);
+
+    box-shadow:
+        0 8px 18px rgba(23, 19, 16, 0.14);
+}
+
+
+/* =========================================================
+   COLUMNA
+========================================================= */
+
+#math-balance-game .mb-column {
+
+    position: absolute;
+
+    bottom: 35px;
+
+    left: 50%;
+
+    width: 20px;
+
+    height: min(210px, 48%);
+
+    min-height: 120px;
+
+    transform: translateX(-50%);
+
+    border-radius: 15px 15px 5px 5px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #c8beb7,
+            #eee9e5,
+            #b8aca4
+        );
+
+    border: 1px solid #bdb1aa;
+
+    box-shadow:
+        0 0 12px rgba(39, 27, 20, 0.08);
+}
+
+
+/* =========================================================
+   PUNTO DE GIRO
+========================================================= */
+
+#math-balance-game .mb-pivot {
+
+    position: absolute;
+
+    left: 50%;
+
+    bottom: calc(35px + min(210px, 48%));
+
+    width: 44px;
+
+    height: 44px;
+
+    transform: translate(-50%, 50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #fffdfb,
+            #cfc5be 45%,
+            #8f8179
+        );
+
+    border: 4px solid var(--dark);
+
+    z-index: 8;
+
+    box-shadow:
+        0 5px 14px rgba(23, 19, 16, 0.16);
+}
+
+
+/* =========================================================
+   BRAZO DE LA BALANZA
+========================================================= */
+
+#math-balance-game .mb-beam-wrapper {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 42%;
+
+    width: 100%;
+
+    height: 0;
+
+    transform:
+        translate(-50%, -50%)
+        rotate(0deg);
+
+    transform-origin: center center;
+
+    transition:
+        transform 0.65s cubic-bezier(.2,.8,.2,1);
+
+    z-index: 5;
+}
+
+#math-balance-game .mb-beam {
+
+    position: absolute;
+
+    left: 7%;
+
+    right: 7%;
+
+    top: -9px;
+
+    height: 18px;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #d8cec7,
+            #9c8f87
+        );
+
+    border: 1px solid #9e9189;
+
+    box-shadow:
+        0 6px 15px rgba(23, 19, 16, 0.13);
+}
+
+
+/* =========================================================
+   BRAZOS VERTICALES
+========================================================= */
+
+#math-balance-game .mb-hanger {
+
+    position: absolute;
+
+    top: 0;
+
+    width: 4px;
+
+    height: min(130px, 30%);
+
+    min-height: 80px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #cfc5be,
+            #8e8179
+        );
+
+    border-radius: 5px;
+}
+
+#math-balance-game .mb-hanger.left {
+    left: 16%;
+}
+
+#math-balance-game .mb-hanger.right {
+    right: 16%;
+}
+
+
+/* =========================================================
+   PLATOS
+========================================================= */
+
+#math-balance-game .mb-pan {
+
+    position: absolute;
+
+    top: min(117px, 27vh);
+
+    width: 170px;
+
+    min-height: 100px;
+
+    padding: 13px;
+
+    border-radius:
+        8px 8px 28px 28px;
+
+    border:
+        2px solid #cfc4bd;
+
+    background:
+        #f3efec;
+
+    box-shadow:
+        inset 0 8px 18px rgba(255,255,255,0.75),
+        0 8px 18px rgba(39,27,20,0.10);
+
+    display: flex;
+
+    align-content: flex-start;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 6px;
+
+    transition:
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+#math-balance-game .mb-pan.left {
+    left: calc(16% - 85px);
+}
+
+#math-balance-game .mb-pan.right {
+    right: calc(16% - 85px);
+}
+
+
+/* =========================================================
+   ETIQUETAS
+========================================================= */
+
+#math-balance-game .mb-pan-label {
+
+    position: absolute;
+
+    top: 100%;
+
+    margin-top: 9px;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    white-space: nowrap;
+
+    font-size: 11px;
+
+    color: var(--muted);
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   OBJETO OBJETIVO
+========================================================= */
+
+#math-balance-game .mb-target-object {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    width: 65px;
+
+    height: 65px;
+
+    border-radius: 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 18px;
+
+    font-weight: 900;
+
+    color: white;
+
+    background: var(--accent);
+
+    border:
+        2px solid rgba(255,255,255,0.8);
+
+    box-shadow:
+        0 8px 20px rgba(239,59,32,0.22);
+
+    z-index: 20;
+}
+
+
+/* =========================================================
+   BLOQUES
+========================================================= */
+
+#math-balance-game .mb-block {
+
+    width: 68px;
+
+    height: 50px;
+
+    border-radius: 13px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 17px;
+
+    font-weight: 900;
+
+    user-select: none;
+
+    cursor: grab;
+
+    touch-action: none;
+
+    border:
+        1px solid rgba(255,255,255,0.8);
+
+    background: var(--accent);
+
+    color: white;
+
+    box-shadow:
+        0 6px 13px rgba(39,27,20,0.13),
+        inset 0 1px rgba(255,255,255,0.3);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+#math-balance-game .mb-block:hover {
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 10px 20px rgba(39,27,20,0.17);
+}
+
+#math-balance-game .mb-block:active {
+    cursor: grabbing;
+}
+
+
+/* =========================================================
+   BLOQUES NEGATIVOS
+========================================================= */
+
+#math-balance-game .mb-block.negative {
+
+    background:
+        #7b4b45;
+}
+
+
+/* =========================================================
+   BLOQUES DECIMALES
+========================================================= */
+
+#math-balance-game .mb-block.decimal {
+
+    background:
+        #d9822b;
+}
+
+
+/* =========================================================
+   NEGATIVOS DECIMALES
+========================================================= */
+
+#math-balance-game .mb-block.negative.decimal {
+
+    background:
+        #8f5b76;
+}
+
+
+/* =========================================================
+   BLOQUES COLOCADOS
+========================================================= */
+
+#math-balance-game .mb-block.placed {
+
+    cursor: grab;
+
+    box-shadow:
+        0 5px 12px rgba(39,27,20,0.14),
+        inset 0 1px rgba(255,255,255,0.25);
+}
+
+
+/* =========================================================
+   BLOQUE DURANTE DRAG
+========================================================= */
+
+#math-balance-game .mb-block.dragging {
+
+    position: fixed !important;
+
+    z-index: 99999;
+
+    pointer-events: none;
+
+    transform:
+        translate(-50%, -50%)
+        scale(1.08) !important;
+
+    opacity: 0.96;
+
+    box-shadow:
+        0 18px 35px rgba(39,27,20,0.25);
+}
+
+
+/* =========================================================
+   BLOQUE OCULTO
+========================================================= */
+
+#math-balance-game .mb-block-source-hidden {
+
+    visibility: hidden !important;
+}
+
+
+/* =========================================================
+   PANEL DERECHO
+========================================================= */
+
+#math-balance-game .mb-control-panel {
+
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+
+    min-height: 0;
+
+    overflow: hidden;
+
+    gap: 12px;
+}
+
+#math-balance-game .mb-card {
+
+    border-radius: 21px;
+
+    padding: 18px;
+
+    border:
+        1px solid var(--border);
+
+    background:
+        var(--surface);
+
+    box-shadow:
+        0 12px 28px rgba(39,27,20,0.06);
+
+    min-height: 0;
+}
+
+
+/* =========================================================
+   PANEL DE BLOQUES
+========================================================= */
+
+#math-balance-game .mb-card:first-child {
+
+    display: flex;
+
+    flex-direction: column;
+
+    min-height: 0;
+
+    flex: 1;
+}
+
+#math-balance-game .mb-card-title {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 5px;
+
+    flex-shrink: 0;
+}
+
+#math-balance-game .mb-card-title h2 {
+
+    margin: 0;
+
+    font-size: 17px;
+
+    color: var(--text);
+}
+
+#math-balance-game .mb-card-title span {
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+#math-balance-game .mb-help {
+
+    color: var(--muted);
+
+    font-size: 12px;
+
+    line-height: 1.45;
+
+    margin-bottom: 12px;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   BANDEJA
+========================================================= */
+
+#math-balance-game .mb-tray {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0,1fr));
+
+    gap: 9px;
+
+    min-height: 0;
+
+    overflow-y: auto;
+
+    overflow-x: hidden;
+
+    flex: 1;
+
+    align-content: start;
+
+    padding-right: 2px;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+#math-balance-game .mb-tray::-webkit-scrollbar,
+#math-balance-game .mb-control-panel::-webkit-scrollbar {
+
+    width: 6px;
+}
+
+#math-balance-game .mb-tray::-webkit-scrollbar-track,
+#math-balance-game .mb-control-panel::-webkit-scrollbar-track {
+
+    background: transparent;
+}
+
+#math-balance-game .mb-tray::-webkit-scrollbar-thumb,
+#math-balance-game .mb-control-panel::-webkit-scrollbar-thumb {
+
+    background: #d7cec7;
+
+    border-radius: 10px;
+}
+
+
+/* =========================================================
+   BOTONES
+========================================================= */
+
+#math-balance-game .mb-buttons {
+
+    display: flex;
+
+    gap: 8px;
+
+    margin-top: 12px;
+
+    flex-shrink: 0;
+}
+
+#math-balance-game .mb-button {
+
+    flex: 1;
+
+    border: 0;
+
+    border-radius: 13px;
+
+    padding: 12px 10px;
+
+    color: var(--text);
+
+    background: #f4f0ed;
+
+    border:
+        1px solid var(--border);
+
+    cursor: pointer;
+
+    font-weight: 700;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+#math-balance-game .mb-button:hover {
+
+    transform: translateY(-2px);
+
+    background: #ece6e1;
+
+    border-color: var(--border-dark);
+}
+
+#math-balance-game .mb-button.primary {
+
+    background: var(--accent);
+
+    color: white;
+
+    border-color: var(--accent);
+}
+
+#math-balance-game .mb-button.primary:hover {
+
+    background: var(--accent-hover);
+
+    border-color: var(--accent-hover);
+}
+
+
+/* =========================================================
+   INDICADOR
+========================================================= */
+
+#math-balance-game .mb-status {
+
+    margin-top: 10px;
+
+    padding: 11px;
+
+    border-radius: 14px;
+
+    text-align: center;
+
+    font-size: 13px;
+
+    color: var(--muted);
+
+    background: var(--surface-soft);
+
+    border:
+        1px solid var(--border);
+
+    transition:
+        all 0.3s ease;
+
+    flex-shrink: 0;
+}
+
+#math-balance-game .mb-status.success {
+
+    color: var(--success);
+
+    background: var(--success-soft);
+
+    border-color: #b9e5ca;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   INSTRUCCIONES
+========================================================= */
+
+#math-balance-game .mb-rules {
+
+    flex-shrink: 0;
+}
+
+#math-balance-game .mb-rules-title {
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    margin-bottom: 8px;
+}
+
+#math-balance-game .mb-rule {
+
+    display: flex;
+
+    gap: 8px;
+
+    margin: 7px 0;
+
+    color: var(--muted);
+
+    font-size: 11px;
+
+    line-height: 1.4;
+}
+
+#math-balance-game .mb-rule-icon {
+
+    color: var(--accent);
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   DESCRIPCIÓN DEL NIVEL
+========================================================= */
+
+#math-balance-game .mb-level-description {
+
+    flex-shrink: 0;
+
+    margin-top: 0;
+
+    padding: 11px 13px;
+
+    border-left:
+        3px solid var(--accent);
+
+    border-radius: 8px;
+
+    background:
+        var(--accent-soft);
+
+    color: var(--muted);
+
+    font-size: 11px;
+
+    line-height: 1.45;
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+#math-balance-game .mb-modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 100000;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(23,19,16,0.45);
+
+    backdrop-filter: blur(5px);
+}
+
+#math-balance-game .mb-modal.show {
+
+    display: flex;
+
+    animation:
+        mbFadeIn 0.3s ease;
+}
+
+@keyframes mbFadeIn {
+
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+#math-balance-game .mb-modal-card {
+
+    width: min(440px, 100%);
+
+    padding: 35px 28px;
+
+    border-radius: 25px;
+
+    text-align: center;
+
+    background:
+        var(--surface);
+
+    border:
+        1px solid var(--border);
+
+    box-shadow:
+        0 25px 70px rgba(23,19,16,0.20);
+
+    animation:
+        mbModalPop 0.45s cubic-bezier(.2,1.4,.4,1);
+}
+
+@keyframes mbModalPop {
+
+    from {
+        transform: scale(0.7);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+#math-balance-game .mb-modal-icon {
+
+    font-size: 60px;
+
+    margin-bottom: 10px;
+
+    animation:
+        mbBounce 1.2s ease infinite;
+}
+
+@keyframes mbBounce {
+
+    0%,100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+#math-balance-game .mb-modal h2 {
+
+    margin: 0;
+
+    font-size: 30px;
+
+    color: var(--text);
+}
+
+#math-balance-game .mb-modal p {
+
+    color: var(--muted);
+
+    line-height: 1.5;
+
+    margin: 12px 0 23px;
+}
+
+#math-balance-game .mb-next {
+
+    width: 100%;
+
+    padding: 14px;
+
+    border: 0;
+
+    border-radius: 14px;
+
+    cursor: pointer;
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    background: var(--accent);
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+#math-balance-game .mb-next:hover {
+
+    background: var(--accent-hover);
+
+    transform: translateY(-2px);
+}
+
+
+/* =========================================================
+   CONFETI
+========================================================= */
+
+#math-balance-game .mb-confetti {
+
+    position: fixed;
+
+    width: 8px;
+
+    height: 12px;
+
+    top: -20px;
+
+    z-index: 100001;
+
+    pointer-events: none;
+
+    color: var(--accent);
+
+    animation:
+        mbConfettiFall linear forwards;
+}
+
+@keyframes mbConfettiFall {
+
+    to {
+
+        transform:
+            translateY(110vh)
+            rotate(720deg);
+
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 950px) {
+
+    #math-balance-game .mb-main {
+
+        grid-template-columns: 1fr;
+
+        grid-template-rows:
+            minmax(0, 1fr)
+            auto;
+
+        overflow: hidden;
+    }
+
+    #math-balance-game .mb-control-panel {
+
+        display: grid;
+
+        grid-template-columns:
+            1fr 1fr;
+
+        gap: 10px;
+
+        max-height: 30vh;
+
+        overflow-y: auto;
+    }
+
+    #math-balance-game .mb-card:first-child {
+
+        flex: none;
+    }
+
+    #math-balance-game .mb-card {
+
+        margin: 0;
+    }
+
+    #math-balance-game .mb-rules,
+    #math-balance-game .mb-level-description {
+
+        grid-column: 1 / -1;
+    }
+
+    #math-balance-game .mb-tray {
+
+        max-height: 130px;
+
+        overflow-y: auto;
+    }
+}
+
+
+/* =========================================================
+   MÓVIL
+========================================================= */
+
+@media (max-width: 650px) {
+
+    #math-balance-game .mb-content {
+
+        width: 96%;
+
+        padding-top: 10px;
+
+        padding-bottom: 10px;
+    }
+
+    #math-balance-game .mb-header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 8px;
+
+        margin-bottom: 8px;
+    }
+
+    #math-balance-game .mb-title-area h1 {
+
+        font-size: 25px;
+    }
+
+    #math-balance-game .mb-title-area p {
+
+        margin-top: 5px;
+
+        font-size: 11px;
+    }
+
+    #math-balance-game .mb-stats {
+
+        width: 100%;
+
+        justify-content: flex-start;
+
+        gap: 6px;
+    }
+
+    #math-balance-game .mb-stat {
+
+        min-width: 75px;
+
+        padding: 6px 9px;
+    }
+
+    #math-balance-game .mb-stat-value {
+
+        font-size: 16px;
+    }
+
+    #math-balance-game .mb-main {
+
+        grid-template-rows:
+            minmax(0, 1fr)
+            auto;
+
+        gap: 8px;
+    }
+
+    #math-balance-game .mb-balance-panel {
+
+        padding: 10px;
+
+        min-height: 0;
+    }
+
+    #math-balance-game .mb-target-area {
+
+        margin-bottom: 5px;
+    }
+
+    #math-balance-game .mb-target-card {
+
+        padding: 6px 16px;
+    }
+
+    #math-balance-game .mb-target-value {
+
+        font-size: 23px;
+    }
+
+    #math-balance-game .mb-balance-info {
+
+        margin-bottom: 3px;
+
+        gap: 5px;
+    }
+
+    #math-balance-game .mb-info-chip {
+
+        padding: 5px 8px;
+
+        font-size: 11px;
+    }
+
+    #math-balance-game .mb-scale-scene {
+
+        min-height: 0;
+
+        margin-top: 3px;
+    }
+
+    #math-balance-game .mb-pan {
+
+        width: 130px;
+
+        min-height: 75px;
+
+        padding: 8px;
+
+        top: 100px;
+    }
+
+    #math-balance-game .mb-pan.left {
+
+        left: calc(16% - 65px);
+    }
+
+    #math-balance-game .mb-pan.right {
+
+        right: calc(16% - 65px);
+    }
+
+    #math-balance-game .mb-block {
+
+        width: 58px;
+
+        height: 43px;
+
+        font-size: 14px;
+    }
+
+    #math-balance-game .mb-target-object {
+
+        width: 54px;
+
+        height: 54px;
+
+        font-size: 14px;
+    }
+
+    #math-balance-game .mb-column {
+
+        height: 150px;
+
+        min-height: 100px;
+
+        bottom: 25px;
+    }
+
+    #math-balance-game .mb-base {
+
+        bottom: 10px;
+    }
+
+    #math-balance-game .mb-pivot {
+
+        bottom: 175px;
+    }
+
+    #math-balance-game .mb-hanger {
+
+        height: 105px;
+
+        min-height: 70px;
+    }
+
+    #math-balance-game .mb-control-panel {
+
+        display: flex;
+
+        max-height: 27vh;
+
+        overflow-y: auto;
+    }
+
+    #math-balance-game .mb-card {
+
+        padding: 10px;
+    }
+
+    #math-balance-game .mb-help {
+
+        margin-bottom: 8px;
+
+        font-size: 10px;
+    }
+
+    #math-balance-game .mb-rules,
+    #math-balance-game .mb-level-description {
+
+        display: none;
+    }
+
+    #math-balance-game .mb-buttons {
+
+        margin-top: 8px;
+    }
+
+    #math-balance-game .mb-status {
+
+        margin-top: 8px;
+
+        padding: 8px;
+    }
+}
+
+
+/* =========================================================
+   PANTALLAS MUY BAJAS
+========================================================= */
+
+@media (max-height: 650px) and (min-width: 651px) {
+
+    #math-balance-game .mb-content {
+
+        padding-top: 10px;
+
+        padding-bottom: 10px;
+    }
+
+    #math-balance-game .mb-header {
+
+        margin-bottom: 8px;
+    }
+
+    #math-balance-game .mb-title-area p {
+
+        margin-top: 5px;
+    }
+
+    #math-balance-game .mb-target-card {
+
+        padding: 6px 18px;
+    }
+
+    #math-balance-game .mb-target-value {
+
+        font-size: 24px;
+    }
+
+    #math-balance-game .mb-balance-info {
+
+        margin-bottom: 4px;
+    }
+
+    #math-balance-game .mb-balance-panel {
+
+        padding: 12px;
+    }
+
+    #math-balance-game .mb-pan {
+
+        top: 90px;
+
+        min-height: 80px;
+    }
+
+    #math-balance-game .mb-hanger {
+
+        height: 105px;
+    }
+
+    #math-balance-game .mb-card {
+
+        padding: 12px;
+    }
+
+    #math-balance-game .mb-help {
+
+        margin-bottom: 7px;
+    }
+
+    #math-balance-game .mb-buttons {
+
+        margin-top: 8px;
+    }
+
+    #math-balance-game .mb-status {
+
+        margin-top: 8px;
+
+        padding: 8px;
+    }
+}
+
+
+/* =========================================================
+   ACCESIBILIDAD
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    #math-balance-game *,
+    #math-balance-game *::before,
+    #math-balance-game *::after {
+
+        animation-duration: 0.01ms !important;
+
+        transition-duration: 0.01ms !important;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div id="math-balance-game">
+
+    <div class="mb-background-grid"></div>
+
+    <div class="mb-orb one"></div>
+    <div class="mb-orb two"></div>
+
+
+    <div class="mb-content">
+
+
+        <!-- =================================================
+             HEADER
+        ================================================== -->
+
+        <header class="mb-header">
+
+            <div class="mb-title-area">
+
+                <h1>⚖️ La Balanza Matemática</h1>
+
+                <p>
+                    Encuentra la combinación de bloques que hace
+                    que la balanza quede perfectamente equilibrada.
+                </p>
+
+            </div>
+
+
+            <div class="mb-stats">
+
+                <div class="mb-stat">
+
+                    <span class="mb-stat-label">
+                        Nivel
+                    </span>
+
+                    <span
+                        class="mb-stat-value"
+                        id="mbLevel">
+                        1
+                    </span>
+
+                </div>
+
+
+                <div class="mb-stat">
+
+                    <span class="mb-stat-label">
+                        Movimientos
+                    </span>
+
+                    <span
+                        class="mb-stat-value"
+                        id="mbMoves">
+                        0
+                    </span>
+
+                </div>
+
+
+                <div class="mb-stat">
+
+                    <span class="mb-stat-label">
+                        Récord
+                    </span>
+
+                    <span
+                        class="mb-stat-value"
+                        id="mbBest">
+                        0
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =================================================
+             ÁREA PRINCIPAL
+        ================================================== -->
+
+        <main class="mb-main">
+
+
+            <!-- =================================================
+                 BALANZA
+            ================================================== -->
+
+            <section class="mb-balance-panel">
+
+
+                <div class="mb-target-area">
+
+                    <div class="mb-target-card">
+
+                        <div class="mb-target-label">
+                            Peso objetivo
+                        </div>
+
+                        <div
+                            class="mb-target-value"
+                            id="mbTarget">
+                            10
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="mb-balance-info">
+
+                    <div class="mb-info-chip">
+
+                        Colocado:
+                        <strong id="mbCurrent">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div
+                        class="mb-info-chip mb-difference"
+                        id="mbDifferenceBox">
+
+                        Diferencia:
+                        <strong id="mbDifference">
+                            10
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     ESCENARIO
+                ================================================== -->
+
+                <div class="mb-scale-scene">
+
+
+                    <div class="mb-column"></div>
+
+
+                    <div class="mb-base"></div>
+
+
+                    <div class="mb-pivot"></div>
+
+
+                    <div
+                        class="mb-beam-wrapper"
+                        id="mbBeamWrapper">
+
+                        <div class="mb-beam"></div>
+
+
+                        <div class="mb-hanger left"></div>
+
+                        <div class="mb-hanger right"></div>
+
+
+                        <div
+                            class="mb-pan left"
+                            id="mbTargetPan">
+
+                            <div class="mb-target-object">
+                                🎯
+                            </div>
+
+                            <div class="mb-pan-label">
+                                Objetivo
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="mb-pan right"
+                            id="mbWeightPan">
+
+                            <div class="mb-pan-label">
+                                Tus bloques
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 PANEL DE CONTROL
+            ================================================== -->
+
+            <aside class="mb-control-panel">
+
+
+                <div class="mb-card">
+
+
+                    <div class="mb-card-title">
+
+                        <h2>🧱 Bloques disponibles</h2>
+
+                        <span id="mbBlockCount">
+                            0 bloques
+                        </span>
+
+                    </div>
+
+
+                    <div class="mb-help">
+
+                        Arrastra los bloques al plato derecho.
+                        Puedes combinar tantos como necesites.
+
+                    </div>
+
+
+                    <div
+                        class="mb-tray"
+                        id="mbTray">
+                    </div>
+
+
+                    <div class="mb-buttons">
+
+                        <button
+                            class="mb-button"
+                            id="mbReset">
+
+                            ↻ Reiniciar
+
+                        </button>
+
+
+                        <button
+                            class="mb-button primary"
+                            id="mbNewLevel">
+
+                            Siguiente
+
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        class="mb-status"
+                        id="mbStatus">
+
+                        ⚖️ La balanza está esperando...
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="mb-card mb-rules">
+
+                    <div class="mb-rules-title">
+                        ¿Cómo jugar?
+                    </div>
+
+
+                    <div class="mb-rule">
+
+                        <span class="mb-rule-icon">①</span>
+
+                        <span>
+                            Observa el peso objetivo.
+                        </span>
+
+                    </div>
+
+
+                    <div class="mb-rule">
+
+                        <span class="mb-rule-icon">②</span>
+
+                        <span>
+                            Arrastra uno o varios bloques
+                            hacia la balanza.
+                        </span>
+
+                    </div>
+
+
+                    <div class="mb-rule">
+
+                        <span class="mb-rule-icon">③</span>
+
+                        <span>
+                            Puedes retirar un bloque
+                            arrastrándolo fuera del plato.
+                        </span>
+
+                    </div>
+
+
+                    <div class="mb-rule">
+
+                        <span class="mb-rule-icon">④</span>
+
+                        <span>
+                            Cuando la diferencia sea 0,
+                            ¡ganas el nivel!
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <div
+                    class="mb-level-description"
+                    id="mbLevelDescription">
+
+                    Nivel inicial: números enteros positivos.
+
+                </div>
+
+
+            </aside>
+
+        </main>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         MODAL DE VICTORIA
+    ====================================================== -->
+
+    <div
+        class="mb-modal"
+        id="mbVictoryModal">
+
+        <div class="mb-modal-card">
+
+            <div class="mb-modal-icon">
+                ⚖️
+            </div>
+
+            <h2>
+                ¡Equilibrio perfecto!
+            </h2>
+
+            <p id="mbVictoryText">
+                Has encontrado la combinación correcta.
+            </p>
+
+            <button
+                class="mb-next"
+                id="mbModalNext">
+
+                Siguiente nivel →
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+(() => {
+
+"use strict";
+
+
+/* =========================================================
+   REFERENCIAS
+========================================================= */
+
+const game =
+    document.getElementById("math-balance-game");
+
+const tray =
+    document.getElementById("mbTray");
+
+const weightPan =
+    document.getElementById("mbWeightPan");
+
+const beam =
+    document.getElementById("mbBeamWrapper");
+
+const targetElement =
+    document.getElementById("mbTarget");
+
+const currentElement =
+    document.getElementById("mbCurrent");
+
+const differenceElement =
+    document.getElementById("mbDifference");
+
+const differenceBox =
+    document.getElementById("mbDifferenceBox");
+
+const levelElement =
+    document.getElementById("mbLevel");
+
+const movesElement =
+    document.getElementById("mbMoves");
+
+const bestElement =
+    document.getElementById("mbBest");
+
+const statusElement =
+    document.getElementById("mbStatus");
+
+const blockCountElement =
+    document.getElementById("mbBlockCount");
+
+const levelDescription =
+    document.getElementById("mbLevelDescription");
+
+const resetButton =
+    document.getElementById("mbReset");
+
+const newLevelButton =
+    document.getElementById("mbNewLevel");
+
+const victoryModal =
+    document.getElementById("mbVictoryModal");
+
+const victoryText =
+    document.getElementById("mbVictoryText");
+
+const modalNext =
+    document.getElementById("mbModalNext");
+
+
+/* =========================================================
+   ESTADO
+========================================================= */
+
+let level = 1;
+let moves = 0;
+let best = 0;
+let target = 10;
+let blocks = [];
+let placedBlocks = [];
+let dragState = null;
+let levelWon = false;
+
+
+/* =========================================================
+   CONFIGURACIÓN DE NIVELES
+========================================================= */
+
+const LEVELS = [
+
+    {
+        target: 6,
+
+        values: [
+            1,
+            2,
+            3,
+            5,
+            7,
+            8
+        ],
+
+        description:
+            "Nivel inicial: utiliza números enteros positivos."
+    },
+
+
+    {
+        target: 10,
+
+        values: [
+            2,
+            3,
+            4,
+            6,
+            7,
+            8
+        ],
+
+        description:
+            "Ahora necesitas combinar varios bloques. Hay más de una solución."
+    },
+
+
+    {
+        target: 15,
+
+        values: [
+            2,
+            3,
+            4,
+            5,
+            6,
+            8,
+            9
+        ],
+
+        description:
+            "Busca una combinación de varios bloques para llegar exactamente al objetivo."
+    },
+
+
+    {
+        target: 8.5,
+
+        values: [
+            1.5,
+            2.5,
+            3.0,
+            4.0,
+            5.5,
+            6.5
+        ],
+
+        description:
+            "Primer desafío decimal: ahora aparecen números con una cifra decimal."
+    },
+
+
+    {
+        target: 12.5,
+
+        values: [
+            1.5,
+            2.0,
+            3.5,
+            4.5,
+            5.0,
+            6.5,
+            7.5
+        ],
+
+        description:
+            "Combina varios números decimales para conseguir el equilibrio."
+    },
+
+
+    {
+        target: 10.25,
+
+        values: [
+            1.25,
+            2.50,
+            3.25,
+            4.75,
+            5.50,
+            6.00,
+            7.25
+        ],
+
+        description:
+            "Ahora los bloques utilizan dos cifras decimales."
+    },
+
+
+    {
+        target: 15.75,
+
+        values: [
+            1.25,
+            2.50,
+            3.75,
+            4.25,
+            5.50,
+            6.25,
+            7.75
+        ],
+
+        description:
+            "Los números son más precisos. Calcula cuidadosamente."
+    },
+
+
+    {
+        target: 8,
+
+        values: [
+            -3,
+            -2,
+            -1,
+            2,
+            4,
+            6,
+            9
+        ],
+
+        description:
+            "¡Aparecen números negativos! Estos reducen el peso colocado."
+    },
+
+
+    {
+        target: 10.5,
+
+        values: [
+            -2.5,
+            -1.5,
+            2.0,
+            3.5,
+            4.5,
+            6.5,
+            8.0
+        ],
+
+        description:
+            "Combina números positivos y negativos con decimales."
+    },
+
+
+    {
+        target: 12.75,
+
+        values: [
+            -3.25,
+            -2.50,
+            -1.25,
+            2.25,
+            3.50,
+            4.75,
+            6.25,
+            8.50
+        ],
+
+        description:
+            "Desafío avanzado: positivos, negativos y dos cifras decimales."
+    }
+
+];
+
+
+/* =========================================================
+   FORMATEAR NÚMEROS
+========================================================= */
+
+function formatNumber(value) {
+
+    const rounded =
+        Math.round(value * 100) / 100;
+
+    return Number.isInteger(rounded)
+        ? String(rounded)
+        : rounded
+            .toFixed(2)
+            .replace(/0+$/, "")
+            .replace(/\.$/, "");
+
+}
+
+
+/* =========================================================
+   REDONDEO
+========================================================= */
+
+function round2(value) {
+
+    return Math.round(
+        (value + Number.EPSILON) * 100
+    ) / 100;
+
+}
+
+
+/* =========================================================
+   OBTENER DATOS DEL NIVEL
+========================================================= */
+
+function getLevelData() {
+
+    if (level <= LEVELS.length) {
+
+        return LEVELS[level - 1];
+
+    }
+
+    return generateRandomLevel();
+
+}
+
+
+/* =========================================================
+   GENERAR NIVELES EXTRA
+========================================================= */
+
+function generateRandomLevel() {
+
+    const difficulty =
+        level - LEVELS.length;
+
+    const scale = 100;
+
+    let targetValue =
+        Math.floor(
+            (10 + difficulty * 2) *
+            scale
+        ) / scale;
+
+    const values = [];
+
+    for (let i = 0; i < 9; i++) {
+
+        const value =
+            Math.floor(
+                (Math.random() * 12 - 4) *
+                scale
+            ) / scale;
+
+        values.push(value);
+
+    }
+
+    const a =
+        Math.floor(
+            Math.random() * 500 + 100
+        ) / 100;
+
+    const b =
+        Math.floor(
+            Math.random() * 500 + 100
+        ) / 100;
+
+    const c =
+        round2(
+            targetValue -
+            a -
+            b
+        );
+
+    values[0] = a;
+    values[1] = b;
+    values[2] = c;
+
+    return {
+
+        target: targetValue,
+
+        values,
+
+        description:
+            "Nivel avanzado generado automáticamente: encuentra una combinación exacta."
+
+    };
+
+}
+
+
+/* =========================================================
+   CARGAR NIVEL
+========================================================= */
+
+function loadLevel() {
+
+    levelWon = false;
+
+    moves = 0;
+
+    placedBlocks = [];
+
+    const data =
+        getLevelData();
+
+    target =
+        round2(data.target);
+
+    blocks =
+        data.values.map(
+            (value, index) => {
+
+                return {
+
+                    id:
+                        "block-" +
+                        Date.now() +
+                        "-" +
+                        index,
+
+                    value:
+                        round2(value),
+
+                    placed:
+                        false
+
+                };
+
+            }
+        );
+
+
+    levelElement.textContent =
+        level;
+
+    movesElement.textContent =
+        moves;
+
+    targetElement.textContent =
+        formatNumber(target);
+
+    levelDescription.textContent =
+        data.description;
+
+    blockCountElement.textContent =
+        blocks.length +
+        " bloques";
+
+
+    renderTray();
+
+
+    weightPan
+        .querySelectorAll(".mb-block")
+        .forEach(element => {
+
+            element.remove();
+
+        });
+
+
+    updateBalance();
+
+
+    statusElement.textContent =
+        "⚖️ La balanza está esperando...";
+
+    statusElement.className =
+        "mb-status";
+
+
+    victoryModal.classList.remove("show");
+
+}
+
+
+/* =========================================================
+   RENDERIZAR BANDEJA
+========================================================= */
+
+function renderTray() {
+
+    tray.innerHTML = "";
+
+    blocks
+        .filter(block => !block.placed)
+        .forEach(block => {
+
+            const element =
+                createBlockElement(block);
+
+            tray.appendChild(element);
+
+        });
+
+}
+
+
+/* =========================================================
+   CREAR BLOQUE
+========================================================= */
+
+function createBlockElement(block) {
+
+    const element =
+        document.createElement("div");
+
+    element.className =
+        "mb-block";
+
+
+    if (block.value < 0) {
+
+        element.classList.add(
+            "negative"
+        );
+
+    }
+
+
+    if (
+        !Number.isInteger(
+            Math.abs(block.value)
+        )
+    ) {
+
+        element.classList.add(
+            "decimal"
+        );
+
+    }
+
+
+    element.textContent =
+        formatNumber(block.value);
+
+    element.dataset.blockId =
+        block.id;
+
+
+    element.addEventListener(
+        "pointerdown",
+        startDrag
+    );
+
+
+    return element;
+
+}
+
+
+/* =========================================================
+   INICIAR DRAG
+========================================================= */
+
+function startDrag(event) {
+
+    if (levelWon) {
+        return;
+    }
+
+    event.preventDefault();
+
+    const source =
+        event.currentTarget;
+
+    const blockId =
+        source.dataset.blockId;
+
+    const block =
+        blocks.find(
+            item => item.id === blockId
+        );
+
+    if (!block) {
+        return;
+    }
+
+
+    const isPlaced =
+        block.placed;
+
+
+    /*
+        Si estaba colocado,
+        lo retiramos temporalmente.
+    */
+
+    if (isPlaced) {
+
+        placedBlocks =
+            placedBlocks.filter(
+                id => id !== blockId
+            );
+
+        block.placed = false;
+
+        source.remove();
+
+        updateBalance();
+
+    }
+
+
+    /*
+        Ocultar original.
+    */
+
+    source.classList.add(
+        "mb-block-source-hidden"
+    );
+
+
+    /*
+        Crear clon directamente
+        dentro del contenedor del juego.
+    */
+
+    const clone =
+        source.cloneNode(true);
+
+    clone.classList.remove(
+        "mb-block-source-hidden"
+    );
+
+    clone.classList.add(
+        "dragging"
+    );
+
+    clone.style.left =
+        event.clientX + "px";
+
+    clone.style.top =
+        event.clientY + "px";
+
+
+    /*
+        Importante:
+        eliminamos el listener copiado
+        del clon.
+    */
+
+    const cleanClone =
+        clone.cloneNode(true);
+
+    cleanClone.classList.remove(
+        "mb-block-source-hidden"
+    );
+
+    cleanClone.classList.add(
+        "dragging"
+    );
+
+    cleanClone.style.left =
+        event.clientX + "px";
+
+    cleanClone.style.top =
+        event.clientY + "px";
+
+    game.appendChild(
+        cleanClone
+    );
+
+
+    dragState = {
+
+        block,
+
+        source,
+
+        clone:
+            cleanClone,
+
+        startX:
+            event.clientX,
+
+        startY:
+            event.clientY,
+
+        moved:
+            false,
+
+        wasPlaced:
+            isPlaced
+
+    };
+
+
+    document.addEventListener(
+        "pointermove",
+        dragMove
+    );
+
+    document.addEventListener(
+        "pointerup",
+        endDrag
+    );
+
+}
+
+
+/* =========================================================
+   MOVER DRAG
+========================================================= */
+
+function dragMove(event) {
+
+    if (!dragState) {
+        return;
+    }
+
+
+    const dx =
+        event.clientX -
+        dragState.startX;
+
+    const dy =
+        event.clientY -
+        dragState.startY;
+
+
+    if (
+        Math.abs(dx) > 4 ||
+        Math.abs(dy) > 4
+    ) {
+
+        dragState.moved = true;
+
+    }
+
+
+    dragState.clone.style.left =
+        event.clientX + "px";
+
+    dragState.clone.style.top =
+        event.clientY + "px";
+
+}
+
+
+/* =========================================================
+   FINALIZAR DRAG
+========================================================= */
+
+function endDrag(event) {
+
+    if (!dragState) {
+        return;
+    }
+
+
+    const state =
+        dragState;
+
+
+    const panRect =
+        weightPan.getBoundingClientRect();
+
+
+    const insidePan =
+        event.clientX >= panRect.left &&
+        event.clientX <= panRect.right &&
+        event.clientY >= panRect.top &&
+        event.clientY <= panRect.bottom;
+
+
+    if (insidePan) {
+
+        placeBlock(
+            state.block
+        );
+
+        moves++;
+
+        movesElement.textContent =
+            moves;
+
+    }
+
+    else {
+
+        state.block.placed =
+            false;
+
+    }
+
+
+    cleanupDrag();
+
+    renderTray();
+
+    updateBalance();
+
+}
+
+
+/* =========================================================
+   COLOCAR BLOQUE
+========================================================= */
+
+function placeBlock(block) {
+
+    block.placed = true;
+
+
+    if (
+        !placedBlocks.includes(
+            block.id
+        )
+    ) {
+
+        placedBlocks.push(
+            block.id
+        );
+
+    }
+
+
+    const element =
+        createBlockElement(block);
+
+    element.classList.add(
+        "placed"
+    );
+
+    weightPan.appendChild(
+        element
+    );
+
+}
+
+
+/* =========================================================
+   LIMPIAR DRAG
+========================================================= */
+
+function cleanupDrag() {
+
+    if (!dragState) {
+        return;
+    }
+
+
+    if (dragState.source) {
+
+        dragState.source.classList.remove(
+            "mb-block-source-hidden"
+        );
+
+    }
+
+
+    if (
+        dragState.clone &&
+        dragState.clone.parentNode
+    ) {
+
+        dragState.clone.remove();
+
+    }
+
+
+    dragState = null;
+
+
+    document.removeEventListener(
+        "pointermove",
+        dragMove
+    );
+
+    document.removeEventListener(
+        "pointerup",
+        endDrag
+    );
+
+}
+
+
+/* =========================================================
+   CALCULAR SUMA
+========================================================= */
+
+function calculateCurrent() {
+
+    let sum = 0;
+
+
+    placedBlocks.forEach(id => {
+
+        const block =
+            blocks.find(
+                item => item.id === id
+            );
+
+        if (block) {
+
+            sum += block.value;
+
+        }
+
+    });
+
+
+    return round2(sum);
+
+}
+
+
+/* =========================================================
+   ACTUALIZAR BALANZA
+========================================================= */
+
+function updateBalance() {
+
+    const current =
+        calculateCurrent();
+
+    const difference =
+        round2(
+            target - current
+        );
+
+
+    currentElement.textContent =
+        formatNumber(current);
+
+    differenceElement.textContent =
+        formatNumber(
+            Math.abs(difference)
+        );
+
+
+    const balanced =
+        Math.abs(difference) < 0.005;
+
+
+    if (balanced) {
+
+        differenceElement.textContent =
+            "0";
+
+        differenceBox.classList.add(
+            "correct"
+        );
+
+    }
+
+    else {
+
+        differenceBox.classList.remove(
+            "correct"
+        );
+
+    }
+
+
+    const rawDifference =
+        current - target;
+
+
+    let angle =
+        rawDifference * 2.2;
+
+
+    angle =
+        Math.max(
+            -17,
+            Math.min(
+                17,
+                angle
+            )
+        );
+
+
+    if (
+        Math.abs(rawDifference) < 0.25
+    ) {
+
+        angle *= 0.45;
+
+    }
+
+
+    if (balanced) {
+
+        angle = 0;
+
+    }
+
+
+    beam.style.transform =
+        `translate(-50%, -50%) rotate(${angle}deg)`;
+
+
+    if (balanced) {
+
+        statusElement.textContent =
+            "🎯 ¡Equilibrio perfecto!";
+
+        statusElement.className =
+            "mb-status success";
+
+
+        if (!levelWon) {
+
+            levelWon = true;
+
+            setTimeout(
+                showVictory,
+                450
+            );
+
+        }
+
+    }
+
+    else if (current === 0) {
+
+        statusElement.textContent =
+            "⚖️ Coloca algunos bloques en la balanza.";
+
+        statusElement.className =
+            "mb-status";
+
+    }
+
+    else if (difference > 0) {
+
+        statusElement.textContent =
+            "⬆️ Todavía necesitas " +
+            formatNumber(
+                Math.abs(difference)
+            ) +
+            " unidades.";
+
+        statusElement.className =
+            "mb-status";
+
+    }
+
+    else {
+
+        statusElement.textContent =
+            "⬇️ Te has pasado por " +
+            formatNumber(
+                Math.abs(difference)
+            ) +
+            " unidades.";
+
+        statusElement.className =
+            "mb-status";
+
+    }
+
+}
+
+
+/* =========================================================
+   VICTORIA
+========================================================= */
+
+function showVictory() {
+
+    if (
+        best === 0 ||
+        moves < best
+    ) {
+
+        best = moves;
+
+        bestElement.textContent =
+            best;
+
+    }
+
+
+    victoryText.textContent =
+        "Has conseguido un peso de " +
+        formatNumber(
+            calculateCurrent()
+        ) +
+        " utilizando " +
+        moves +
+        " movimiento" +
+        (moves === 1 ? "" : "s") +
+        ".";
+
+
+    victoryModal.classList.add(
+        "show"
+    );
+
+
+    createConfetti();
+
+}
+
+
+/* =========================================================
+   CONFETI
+========================================================= */
+
+function createConfetti() {
+
+    const symbols = [
+        "◆",
+        "●",
+        "■",
+        "★",
+        "✦"
+    ];
+
+
+    for (
+        let i = 0;
+        i < 70;
+        i++
+    ) {
+
+        const piece =
+            document.createElement("div");
+
+        piece.className =
+            "mb-confetti";
+
+        piece.textContent =
+            symbols[
+                Math.floor(
+                    Math.random() *
+                    symbols.length
+                )
+            ];
+
+        piece.style.left =
+            Math.random() * 100 +
+            "vw";
+
+        piece.style.fontSize =
+            (8 + Math.random() * 12) +
+            "px";
+
+        piece.style.animationDuration =
+            (2 + Math.random() * 3) +
+            "s";
+
+        piece.style.animationDelay =
+            Math.random() * 0.7 +
+            "s";
+
+        game.appendChild(
+            piece
+        );
+
+        setTimeout(
+            () => piece.remove(),
+            5000
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   REINICIAR
+========================================================= */
+
+function resetCurrentLevel() {
+
+    loadLevel();
+
+}
+
+
+/* =========================================================
+   SIGUIENTE NIVEL
+========================================================= */
+
+function nextLevel() {
+
+    level++;
+
+    loadLevel();
+
+}
+
+
+/* =========================================================
+   EVENTOS
+========================================================= */
+
+resetButton.addEventListener(
+    "click",
+    resetCurrentLevel
+);
+
+
+newLevelButton.addEventListener(
+    "click",
+    nextLevel
+);
+
+
+modalNext.addEventListener(
+    "click",
+    nextLevel
+);
+
+
+/* =========================================================
+   EVITAR DRAG NATIVO
+========================================================= */
+
+game.addEventListener(
+    "dragstart",
+    event => {
+
+        event.preventDefault();
+
+    }
+);
+
+
+/* =========================================================
+   INICIO
+========================================================= */
+
+loadLevel();
+
+
+})();
+
+</script>
+
+</body>
+</html>

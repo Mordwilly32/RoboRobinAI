@@ -1,0 +1,4319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Programando el Carrito</title>
+
+<style>
+ 
+/* ========================================================= 
+   CONFIGURACIÓN GENERAL 
+========================================================= */ 
+ 
+* { 
+    box-sizing: border-box; 
+} 
+ 
+html, 
+body { 
+    width: 100%; 
+    height: 100%; 
+    margin: 0; 
+    padding: 0; 
+    overflow: hidden; 
+} 
+ 
+body { 
+    height: 100vh; 
+    height: 100dvh; 
+ 
+    overflow: hidden; 
+ 
+    font-family: Arial, Helvetica, sans-serif; 
+ 
+    background: 
+        radial-gradient(circle at 15% 15%, rgba(226, 58, 27, 0.08), transparent 30%), 
+        radial-gradient(circle at 85% 80%, rgba(214, 168, 79, 0.10), transparent 30%), 
+        linear-gradient(135deg, #FAF7F4, #F5F0EC 55%, #F7F3F0); 
+ 
+    color: #14100E; 
+} 
+ 
+ 
+/* ========================================================= 
+   CONTENEDOR PRINCIPAL 
+========================================================= */ 
+ 
+#programming-car-game { 
+    width: 100%; 
+    height: 100vh; 
+    height: 100dvh; 
+ 
+    min-height: 0; 
+ 
+    overflow: hidden; 
+ 
+    position: relative; 
+} 
+ 
+ 
+/* ========================================================= 
+   FONDO DECORATIVO 
+========================================================= */ 
+ 
+#programming-car-game::before { 
+    content: ""; 
+ 
+    position: absolute; 
+    inset: 0; 
+ 
+    background-image: 
+        linear-gradient(rgba(20,16,14,0.025) 1px, transparent 1px), 
+        linear-gradient(90deg, rgba(20,16,14,0.025) 1px, transparent 1px); 
+ 
+    background-size: 35px 35px; 
+ 
+    pointer-events: none; 
+} 
+ 
+ 
+/* ========================================================= 
+   CONTENIDO 
+========================================================= */ 
+ 
+.pc-content { 
+    position: relative; 
+    z-index: 1; 
+ 
+    width: min(1400px, 96%); 
+    height: 100%; 
+ 
+    min-height: 0; 
+ 
+    margin: auto; 
+ 
+    padding: 14px 0; 
+ 
+    display: flex; 
+    flex-direction: column; 
+} 
+ 
+ 
+/* ========================================================= 
+   ENCABEZADO 
+========================================================= */ 
+ 
+.pc-header { 
+    flex-shrink: 0; 
+ 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+ 
+    gap: 20px; 
+ 
+    margin-bottom: 10px; 
+ 
+    min-height: 0; 
+} 
+ 
+.pc-title-area { 
+    min-width: 0; 
+} 
+ 
+.pc-title-area h1 { 
+    margin: 0; 
+ 
+    font-size: clamp(25px, 3vw, 38px); 
+    font-weight: 800; 
+ 
+    letter-spacing: -1px; 
+ 
+    background: linear-gradient(90deg, #E23A1B, #D6A84F); 
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent; 
+} 
+ 
+.pc-title-area p { 
+    margin: 5px 0 0; 
+ 
+    color: #81756D; 
+ 
+    font-size: 13px; 
+} 
+ 
+ 
+/* ========================================================= 
+   ESTADÍSTICAS 
+========================================================= */ 
+ 
+.pc-stats { 
+    display: flex; 
+ 
+    gap: 8px; 
+ 
+    flex-shrink: 0; 
+} 
+ 
+.pc-stat { 
+    min-width: 90px; 
+ 
+    padding: 7px 11px; 
+ 
+    border: 1px solid #E7DFD8; 
+    border-radius: 12px; 
+ 
+    background: rgba(255,255,255,0.90); 
+ 
+    backdrop-filter: blur(10px); 
+ 
+    text-align: center; 
+} 
+ 
+.pc-stat-label { 
+    display: block; 
+ 
+    font-size: 10px; 
+ 
+    color: #81756D; 
+ 
+    text-transform: uppercase; 
+ 
+    letter-spacing: 0.7px; 
+} 
+ 
+.pc-stat-value { 
+    display: block; 
+ 
+    margin-top: 2px; 
+ 
+    font-size: 18px; 
+ 
+    font-weight: 800; 
+ 
+    color: #14100E; 
+} 
+ 
+ 
+/* ========================================================= 
+   ÁREA PRINCIPAL 
+========================================================= */ 
+ 
+.pc-main { 
+    flex: 1; 
+ 
+    min-height: 0; 
+    min-width: 0; 
+ 
+    display: grid; 
+ 
+    grid-template-columns: 
+        minmax(0, 1fr) 
+        minmax(300px, 360px); 
+ 
+    gap: 12px; 
+ 
+    overflow: hidden; 
+} 
+ 
+ 
+/* ========================================================= 
+   PANELES 
+========================================================= */ 
+ 
+.pc-panel { 
+    min-width: 0; 
+    min-height: 0; 
+ 
+    border: 1px solid #E7DFD8; 
+ 
+    border-radius: 18px; 
+ 
+    background: 
+        linear-gradient( 
+            145deg, 
+            rgba(255,255,255,0.98), 
+            rgba(249,246,243,0.96) 
+        ); 
+ 
+    box-shadow: 
+        0 20px 50px rgba(20,16,14,0.08), 
+        inset 0 1px 0 rgba(255,255,255,0.80); 
+ 
+    backdrop-filter: blur(14px); 
+} 
+ 
+ 
+/* ========================================================= 
+   PANEL DEL TABLERO 
+========================================================= */ 
+ 
+.pc-board-panel { 
+    min-height: 0; 
+    min-width: 0; 
+ 
+    padding: 14px; 
+ 
+    display: flex; 
+    flex-direction: column; 
+ 
+    overflow: hidden; 
+} 
+ 
+ 
+/* ========================================================= 
+   INFORMACIÓN DEL NIVEL 
+========================================================= */ 
+ 
+.pc-level-header { 
+    flex-shrink: 0; 
+ 
+    min-width: 0; 
+ 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+ 
+    gap: 15px; 
+ 
+    margin-bottom: 8px; 
+} 
+ 
+.pc-level-title { 
+    font-size: 16px; 
+ 
+    font-weight: 800; 
+} 
+ 
+.pc-level-description { 
+    margin-top: 3px; 
+ 
+    font-size: 12px; 
+ 
+    color: #81756D; 
+} 
+ 
+.pc-limit { 
+    padding: 7px 11px; 
+ 
+    border-radius: 9px; 
+ 
+    background: rgba(226,58,27,0.08); 
+ 
+    border: 1px solid rgba(226,58,27,0.15); 
+ 
+    color: #E23A1B; 
+ 
+    font-size: 11px; 
+ 
+    font-weight: 700; 
+ 
+    white-space: nowrap; 
+ 
+    flex-shrink: 0; 
+} 
+ 
+ 
+/* ========================================================= 
+   TABLERO 
+========================================================= */ 
+ 
+.pc-board-container { 
+    flex: 1; 
+ 
+    min-width: 0; 
+    min-height: 0; 
+ 
+    display: flex; 
+ 
+    align-items: center; 
+    justify-content: center; 
+ 
+    overflow: hidden; 
+ 
+    position: relative; 
+} 
+ 
+ 
+/* ========================================================= 
+   TABLERO DINÁMICO 
+========================================================= */ 
+ 
+#pc-board { 
+    --board-size: 8; 
+ 
+    display: grid; 
+ 
+    grid-template-columns: 
+        repeat(var(--board-size), 1fr); 
+ 
+    grid-template-rows: 
+        repeat(var(--board-size), 1fr); 
+ 
+    /* 
+        El tamaño ahora se controla principalmente 
+        por la altura disponible. 
+ 
+        Esto evita que un tablero cuadrado 
+        provoque overflow vertical. 
+    */ 
+ 
+    height: min(100%, 620px); 
+ 
+    width: auto; 
+ 
+    max-width: 100%; 
+ 
+    aspect-ratio: 1 / 1; 
+ 
+    padding: 5px; 
+ 
+    border-radius: 15px; 
+ 
+    background: 
+        linear-gradient( 
+            145deg, 
+            rgba(255,255,255,0.98), 
+            rgba(231,223,216,0.65) 
+        ); 
+ 
+    border: 1px solid #E7DFD8; 
+ 
+    box-shadow: 
+        0 20px 45px rgba(20,16,14,0.10), 
+        inset 0 0 30px rgba(20,16,14,0.04); 
+ 
+    position: relative; 
+ 
+    flex-shrink: 1; 
+} 
+ 
+ 
+/* ========================================================= 
+   CELDAS 
+========================================================= */ 
+ 
+.pc-cell { 
+    position: relative; 
+ 
+    min-width: 0; 
+    min-height: 0; 
+ 
+    border: 1px solid rgba(222,212,205,0.75); 
+ 
+    display: flex; 
+ 
+    align-items: center; 
+    justify-content: center; 
+ 
+    background: rgba(247,243,240,0.95); 
+ 
+    overflow: hidden; 
+} 
+ 
+ 
+/* ========================================================= 
+   CAMINO 
+========================================================= */ 
+ 
+.pc-cell.path { 
+    background: 
+        linear-gradient( 
+            135deg, 
+            rgba(251,249,247,1), 
+            rgba(245,240,236,0.95) 
+        ); 
+} 
+ 
+ 
+/* ========================================================= 
+   OBSTÁCULO 
+========================================================= */ 
+ 
+.pc-cell.obstacle { 
+    background: 
+        linear-gradient( 
+            135deg, 
+            #D96B4C, 
+            #C85D3F 
+        ); 
+ 
+    box-shadow: 
+        inset 0 0 0 1px rgba(255,255,255,0.35), 
+        inset 0 5px 12px rgba(255,255,255,0.12); 
+} 
+ 
+.pc-cell.obstacle::after { 
+    content: "⬛"; 
+ 
+    font-size: clamp(15px, 3vw, 27px); 
+ 
+    filter: 
+        drop-shadow( 
+            0 3px 4px rgba(20,16,14,0.25) 
+        ); 
+ 
+    opacity: 0.9; 
+} 
+ 
+ 
+/* ========================================================= 
+   META 
+========================================================= */ 
+ 
+.pc-cell.goal { 
+    background: 
+        radial-gradient( 
+            circle, 
+            rgba(75,155,114,0.22), 
+            rgba(75,155,114,0.05) 
+        ); 
+ 
+    box-shadow: 
+        inset 0 0 18px rgba(75,155,114,0.12); 
+} 
+ 
+.pc-cell.goal::after { 
+    content: "🎯"; 
+ 
+    font-size: clamp(20px, 4vw, 34px); 
+ 
+    filter: 
+        drop-shadow( 
+            0 0 8px rgba(75,155,114,0.35) 
+        ); 
+} 
+ 
+ 
+/* ========================================================= 
+   INICIO 
+========================================================= */ 
+ 
+.pc-cell.start { 
+    box-shadow: 
+        inset 0 0 15px rgba(226,58,27,0.10); 
+} 
+ 
+ 
+/* ========================================================= 
+   CARRITO 
+========================================================= */ 
+ 
+.pc-car { 
+    position: absolute; 
+ 
+    width: 72%; 
+    height: 72%; 
+ 
+    display: flex; 
+ 
+    align-items: center; 
+    justify-content: center; 
+ 
+    font-size: clamp(22px, 4vw, 40px); 
+ 
+    z-index: 10; 
+ 
+    transition: 
+        transform 0.35s cubic-bezier(.22,.61,.36,1); 
+ 
+    filter: 
+        drop-shadow(0 5px 6px rgba(20,16,14,0.25)) 
+        drop-shadow(0 0 8px rgba(226,58,27,0.18)); 
+ 
+    user-select: none; 
+} 
+ 
+.pc-car.moving { 
+    animation: carMove 0.25s ease; 
+} 
+ 
+@keyframes carMove { 
+ 
+    0% { 
+        transform: scale(0.9); 
+    } 
+ 
+    50% { 
+        transform: scale(1.08); 
+    } 
+ 
+    100% { 
+        transform: scale(1); 
+    } 
+} 
+ 
+ 
+/* ========================================================= 
+   PANEL DE PROGRAMACIÓN 
+========================================================= */ 
+ 
+.pc-control-panel { 
+    min-height: 0; 
+ 
+    min-width: 0; 
+ 
+    padding: 11px; 
+ 
+    display: flex; 
+ 
+    flex-direction: column; 
+ 
+    gap: 8px; 
+ 
+    overflow: hidden; 
+} 
+ 
+ 
+/* ========================================================= 
+   TARJETAS 
+========================================================= */ 
+ 
+.pc-card { 
+    border-radius: 14px; 
+ 
+    border: 1px solid #E7DFD8; 
+ 
+    background: rgba(255,255,255,0.88); 
+ 
+    padding: 11px; 
+ 
+    min-height: 0; 
+ 
+    min-width: 0; 
+} 
+ 
+.pc-card-title { 
+    display: flex; 
+ 
+    justify-content: space-between; 
+    align-items: center; 
+ 
+    gap: 5px; 
+ 
+    margin-bottom: 8px; 
+ 
+    font-size: 13px; 
+ 
+    font-weight: 800; 
+ 
+    flex-shrink: 0; 
+} 
+ 
+.pc-card-subtitle { 
+    color: #81756D; 
+ 
+    font-size: 10px; 
+ 
+    font-weight: normal; 
+ 
+    white-space: nowrap; 
+} 
+ 
+ 
+/* ========================================================= 
+   BLOQUES DISPONIBLES 
+========================================================= */ 
+ 
+.pc-command-palette { 
+    display: grid; 
+ 
+    grid-template-columns: 1fr 1fr; 
+ 
+    gap: 6px; 
+} 
+ 
+.pc-command { 
+    border: 1px solid #E7DFD8; 
+ 
+    border-radius: 9px; 
+ 
+    padding: 8px 5px; 
+ 
+    background: #F9F6F3; 
+ 
+    color: #14100E; 
+ 
+    cursor: grab; 
+ 
+    font-size: 11px; 
+ 
+    font-weight: 700; 
+ 
+    text-align: center; 
+ 
+    transition: 
+        transform 0.15s, 
+        background 0.15s, 
+        border-color 0.15s; 
+ 
+    user-select: none; 
+} 
+ 
+.pc-command:hover { 
+    transform: translateY(-2px); 
+ 
+    background: #FDE8E3; 
+ 
+    border-color: rgba(226,58,27,0.30); 
+} 
+ 
+.pc-command:active { 
+    cursor: grabbing; 
+ 
+    transform: scale(0.97); 
+} 
+ 
+.pc-command-icon { 
+    display: block; 
+ 
+    font-size: 18px; 
+ 
+    margin-bottom: 2px; 
+} 
+ 
+ 
+/* ========================================================= 
+   PROGRAMA 
+========================================================= */ 
+ 
+.pc-program-card { 
+    flex: 1; 
+ 
+    min-height: 0; 
+ 
+    display: flex; 
+ 
+    flex-direction: column; 
+ 
+    overflow: hidden; 
+} 
+ 
+#pc-program { 
+    flex: 1; 
+ 
+    min-height: 0; 
+ 
+    overflow-y: auto; 
+    overflow-x: hidden; 
+ 
+    padding: 4px; 
+ 
+    border-radius: 10px; 
+ 
+    background: #FBF9F7; 
+ 
+    border: 1px dashed #DED4CD; 
+} 
+ 
+ 
+/* ========================================================= 
+   SCROLL 
+========================================================= */ 
+ 
+#pc-program::-webkit-scrollbar { 
+    width: 5px; 
+} 
+ 
+#pc-program::-webkit-scrollbar-track { 
+    background: transparent; 
+} 
+ 
+#pc-program::-webkit-scrollbar-thumb { 
+    background: #D8CEC7; 
+ 
+    border-radius: 10px; 
+} 
+ 
+ 
+/* ========================================================= 
+   MENSAJE PROGRAMA VACÍO 
+========================================================= */ 
+ 
+.pc-empty-program { 
+    min-height: 100%; 
+ 
+    display: flex; 
+ 
+    align-items: center; 
+    justify-content: center; 
+ 
+    text-align: center; 
+ 
+    color: #81756D; 
+ 
+    font-size: 11px; 
+ 
+    padding: 12px; 
+} 
+ 
+ 
+/* ========================================================= 
+   BLOQUES DEL PROGRAMA 
+========================================================= */ 
+ 
+.pc-program-block { 
+    display: flex; 
+ 
+    align-items: center; 
+ 
+    gap: 8px; 
+ 
+    padding: 7px 9px; 
+ 
+    margin-bottom: 5px; 
+ 
+    border-radius: 8px; 
+ 
+    background: 
+        linear-gradient( 
+            90deg, 
+            rgba(226,58,27,0.12), 
+            rgba(214,168,79,0.10) 
+        ); 
+ 
+    border: 1px solid rgba(226,58,27,0.15); 
+ 
+    cursor: grab; 
+ 
+    user-select: none; 
+ 
+    transition: 
+        opacity 0.15s, 
+        transform 0.15s; 
+} 
+ 
+.pc-program-block:hover { 
+    border-color: rgba(226,58,27,0.35); 
+} 
+ 
+.pc-program-block.dragging { 
+    opacity: 0.35; 
+} 
+ 
+.pc-block-number { 
+    width: 20px; 
+ 
+    color: #A99B92; 
+ 
+    font-size: 9px; 
+ 
+    text-align: center; 
+ 
+    flex-shrink: 0; 
+} 
+ 
+.pc-block-icon { 
+    width: 25px; 
+ 
+    text-align: center; 
+ 
+    font-size: 17px; 
+ 
+    flex-shrink: 0; 
+} 
+ 
+.pc-block-name { 
+    flex: 1; 
+ 
+    min-width: 0; 
+ 
+    font-size: 10px; 
+ 
+    font-weight: 700; 
+} 
+ 
+.pc-delete-block { 
+    border: 0; 
+ 
+    background: transparent; 
+ 
+    color: #A99B92; 
+ 
+    cursor: pointer; 
+ 
+    font-size: 13px; 
+ 
+    padding: 2px 4px; 
+ 
+    flex-shrink: 0; 
+} 
+ 
+.pc-delete-block:hover { 
+    color: #D94A43; 
+} 
+ 
+ 
+/* ========================================================= 
+   BOTONES 
+========================================================= */ 
+ 
+.pc-buttons { 
+    display: grid; 
+ 
+    grid-template-columns: 1fr 1fr; 
+ 
+    gap: 6px; 
+ 
+    flex-shrink: 0; 
+} 
+ 
+.pc-button { 
+    border: 0; 
+ 
+    border-radius: 9px; 
+ 
+    padding: 9px; 
+ 
+    cursor: pointer; 
+ 
+    color: #FFFFFF; 
+ 
+    font-size: 11px; 
+ 
+    font-weight: 800; 
+ 
+    transition: 
+        transform 0.15s, 
+        filter 0.15s; 
+} 
+ 
+.pc-button:hover { 
+    transform: translateY(-1px); 
+ 
+    filter: brightness(1.12); 
+} 
+ 
+.pc-button:active { 
+    transform: translateY(1px); 
+} 
+ 
+.pc-button:disabled { 
+    opacity: 0.45; 
+ 
+    cursor: not-allowed; 
+ 
+    transform: none; 
+ 
+    filter: none; 
+} 
+ 
+.pc-run { 
+    background: linear-gradient(135deg, #4B9B72, #5E9F7A); 
+} 
+ 
+.pc-stop { 
+    background: linear-gradient(135deg, #D94A43, #C93F39); 
+} 
+ 
+.pc-reset { 
+    background: linear-gradient(135deg, #81756D, #9B8D84); 
+} 
+ 
+.pc-next { 
+    background: linear-gradient(135deg, #E23A1B, #D96B4C); 
+} 
+ 
+ 
+/* ========================================================= 
+   REGLAS 
+========================================================= */ 
+ 
+.pc-rules { 
+    flex-shrink: 0; 
+ 
+    padding: 8px 10px; 
+ 
+    border-radius: 11px; 
+ 
+    background: #F9F6F3; 
+ 
+    border: 1px solid #EEE7E2; 
+} 
+ 
+.pc-rules-title { 
+    font-size: 10px; 
+ 
+    font-weight: 800; 
+ 
+    margin-bottom: 4px; 
+ 
+    color: #81756D; 
+} 
+ 
+.pc-rule { 
+    display: flex; 
+ 
+    align-items: center; 
+ 
+    gap: 6px; 
+ 
+    font-size: 9px; 
+ 
+    color: #81756D; 
+ 
+    margin-top: 2px; 
+} 
+ 
+ 
+/* ========================================================= 
+   ESTADO 
+========================================================= */ 
+ 
+.pc-status { 
+    flex-shrink: 0; 
+ 
+    min-height: 26px; 
+ 
+    padding: 6px 9px; 
+ 
+    border-radius: 8px; 
+ 
+    background: #F9F6F3; 
+ 
+    color: #81756D; 
+ 
+    font-size: 10px; 
+ 
+    text-align: center; 
+ 
+    display: flex; 
+ 
+    align-items: center; 
+ 
+    justify-content: center; 
+} 
+ 
+.pc-status.success { 
+    background: rgba(75,155,114,0.12); 
+ 
+    color: #4B9B72; 
+} 
+ 
+.pc-status.error { 
+    background: rgba(217,74,67,0.12); 
+ 
+    color: #D94A43; 
+} 
+ 
+.pc-status.running { 
+    background: rgba(226,58,27,0.10); 
+ 
+    color: #E23A1B; 
+} 
+ 
+ 
+/* ========================================================= 
+   MODAL 
+========================================================= */ 
+ 
+.pc-modal { 
+    position: fixed; 
+ 
+    inset: 0; 
+ 
+    z-index: 100; 
+ 
+    display: none; 
+ 
+    align-items: center; 
+    justify-content: center; 
+ 
+    background: rgba(20,16,14,0.45); 
+ 
+    backdrop-filter: blur(7px); 
+ 
+    padding: 20px; 
+} 
+ 
+.pc-modal.show { 
+    display: flex; 
+} 
+ 
+.pc-modal-content { 
+    width: min(420px, 100%); 
+ 
+    max-height: calc(100vh - 30px); 
+ 
+    overflow: auto; 
+ 
+    padding: 30px; 
+ 
+    border-radius: 20px; 
+ 
+    border: 1px solid #E7DFD8; 
+ 
+    background: 
+        linear-gradient( 
+            145deg, 
+            #FFFFFF, 
+            #F9F6F3 
+        ); 
+ 
+    box-shadow: 0 30px 80px rgba(20,16,14,0.22); 
+ 
+    text-align: center; 
+ 
+    animation: modalIn 0.3s ease; 
+} 
+ 
+@keyframes modalIn { 
+ 
+    from { 
+        opacity: 0; 
+ 
+        transform: 
+            scale(0.9) 
+            translateY(15px); 
+    } 
+ 
+    to { 
+        opacity: 1; 
+ 
+        transform: 
+            scale(1) 
+            translateY(0); 
+    } 
+} 
+ 
+.pc-modal-icon { 
+    font-size: 58px; 
+ 
+    margin-bottom: 8px; 
+} 
+ 
+.pc-modal h2 { 
+    margin: 0 0 8px; 
+ 
+    font-size: 27px; 
+ 
+    color: #14100E; 
+} 
+ 
+.pc-modal p { 
+    margin: 0 0 20px; 
+ 
+    color: #81756D; 
+ 
+    font-size: 13px; 
+ 
+    line-height: 1.5; 
+} 
+ 
+.pc-modal-buttons { 
+    display: flex; 
+ 
+    gap: 8px; 
+} 
+ 
+.pc-modal-buttons button { 
+    flex: 1; 
+ 
+    border: 0; 
+ 
+    border-radius: 9px; 
+ 
+    padding: 11px; 
+ 
+    color: #FFFFFF; 
+ 
+    font-weight: 800; 
+ 
+    cursor: pointer; 
+} 
+ 
+ 
+/* ========================================================= 
+   CONFETI 
+========================================================= */ 
+ 
+.pc-confetti { 
+    position: fixed; 
+ 
+    width: 7px; 
+    height: 12px; 
+ 
+    top: -20px; 
+ 
+    z-index: 200; 
+ 
+    pointer-events: none; 
+ 
+    animation: 
+        confettiFall linear forwards; 
+} 
+ 
+@keyframes confettiFall { 
+ 
+    to { 
+ 
+        transform: 
+            translateY(110vh) 
+            rotate(720deg); 
+ 
+        opacity: 0; 
+    } 
+} 
+ 
+ 
+/* ========================================================= 
+   RESPONSIVE — TABLET 
+========================================================= */ 
+ 
+@media (max-width: 1050px) { 
+ 
+    .pc-main { 
+        grid-template-columns: 
+            minmax(0, 1fr) 
+            320px; 
+    } 
+ 
+    .pc-control-panel { 
+        padding: 9px; 
+    } 
+ 
+    .pc-card { 
+        padding: 9px; 
+    } 
+ 
+    .pc-rules { 
+        padding: 7px 9px; 
+    } 
+} 
+ 
+ 
+/* ========================================================= 
+   RESPONSIVE — PANTALLAS MEDIANAS 
+========================================================= */ 
+ 
+@media (max-width: 850px) { 
+ 
+    .pc-content { 
+        width: 96%; 
+    } 
+ 
+    .pc-main { 
+        grid-template-columns: 1fr; 
+ 
+        /* 
+            El panel de programación recibe 
+            una altura controlada. 
+        */ 
+ 
+        grid-template-rows: 
+            minmax(0, 1fr) 
+            200px; 
+    } 
+ 
+    .pc-control-panel { 
+ 
+        display: grid; 
+ 
+        grid-template-columns: 
+            minmax(0, 1fr) 
+            minmax(0, 1fr); 
+ 
+        grid-template-rows: 
+            minmax(0, 1fr) 
+            auto; 
+ 
+        gap: 7px; 
+ 
+        overflow: hidden; 
+    } 
+ 
+    .pc-control-panel > .pc-card:first-child { 
+        min-height: 0; 
+    } 
+ 
+    .pc-program-card { 
+        min-height: 0; 
+    } 
+ 
+    .pc-rules { 
+        display: none; 
+    } 
+ 
+    .pc-buttons { 
+        grid-column: 1 / -1; 
+    } 
+ 
+    .pc-status { 
+        grid-column: 1 / -1; 
+    } 
+} 
+ 
+ 
+/* ========================================================= 
+   RESPONSIVE — MÓVIL 
+========================================================= */ 
+ 
+@media (max-width: 600px) { 
+ 
+    .pc-content { 
+        width: 96%; 
+ 
+        padding: 7px 0; 
+    } 
+ 
+    .pc-header { 
+ 
+        flex-direction: column; 
+ 
+        align-items: stretch; 
+ 
+        gap: 6px; 
+ 
+        margin-bottom: 6px; 
+    } 
+ 
+    .pc-title-area h1 { 
+        font-size: 23px; 
+    } 
+ 
+    .pc-title-area p { 
+        font-size: 10px; 
+ 
+        margin-top: 3px; 
+    } 
+ 
+    .pc-stats { 
+        width: 100%; 
+    } 
+ 
+    .pc-stat { 
+        flex: 1; 
+ 
+        min-width: 0; 
+ 
+        padding: 5px; 
+    } 
+ 
+    .pc-stat-label { 
+        font-size: 9px; 
+    } 
+ 
+    .pc-stat-value { 
+        font-size: 14px; 
+    } 
+ 
+    .pc-main { 
+ 
+        /* 
+            El tablero utiliza todo el espacio restante. 
+            El panel inferior se mantiene compacto. 
+        */ 
+ 
+        grid-template-rows: 
+            minmax(0, 1fr) 
+            185px; 
+ 
+        gap: 7px; 
+    } 
+ 
+    .pc-board-panel { 
+        padding: 8px; 
+    } 
+ 
+    .pc-level-header { 
+        margin-bottom: 5px; 
+ 
+        gap: 8px; 
+    } 
+ 
+    .pc-level-title { 
+        font-size: 13px; 
+    } 
+ 
+    .pc-level-description { 
+        display: none; 
+    } 
+ 
+    .pc-limit { 
+        font-size: 8px; 
+ 
+        padding: 5px 6px; 
+    } 
+ 
+    .pc-control-panel { 
+ 
+        padding: 7px; 
+ 
+        display: flex; 
+ 
+        flex-direction: column; 
+ 
+        gap: 5px; 
+    } 
+ 
+    /* 
+        En móvil los comandos ocupan una sola 
+        fila para ahorrar altura. 
+    */ 
+ 
+    .pc-control-panel > .pc-card:first-child { 
+        flex-shrink: 0; 
+    } 
+ 
+    .pc-card { 
+        padding: 7px; 
+ 
+        border-radius: 11px; 
+    } 
+ 
+    .pc-card-title { 
+        font-size: 11px; 
+ 
+        margin-bottom: 5px; 
+    } 
+ 
+    .pc-card-subtitle { 
+        font-size: 8px; 
+    } 
+ 
+    .pc-command-palette { 
+ 
+        grid-template-columns: 
+            repeat(4, 1fr); 
+ 
+        gap: 4px; 
+    } 
+ 
+    .pc-command { 
+ 
+        padding: 5px 2px; 
+ 
+        font-size: 7px; 
+ 
+        border-radius: 7px; 
+    } 
+ 
+    .pc-command-icon { 
+        font-size: 14px; 
+ 
+        margin-bottom: 1px; 
+    } 
+ 
+    .pc-program-card { 
+        flex: 1; 
+ 
+        min-height: 0; 
+    } 
+ 
+    #pc-program { 
+        min-height: 0; 
+    } 
+ 
+    .pc-program-block { 
+        padding: 5px 6px; 
+ 
+        margin-bottom: 3px; 
+ 
+        gap: 5px; 
+    } 
+ 
+    .pc-block-number { 
+        width: 16px; 
+    } 
+ 
+    .pc-block-icon { 
+        width: 20px; 
+ 
+        font-size: 14px; 
+    } 
+ 
+    .pc-block-name { 
+        font-size: 9px; 
+    } 
+ 
+    .pc-delete-block { 
+        font-size: 11px; 
+ 
+        padding: 1px 3px; 
+    } 
+ 
+    .pc-buttons { 
+        gap: 4px; 
+    } 
+ 
+    .pc-button { 
+        padding: 7px 5px; 
+ 
+        font-size: 9px; 
+    } 
+ 
+    .pc-status { 
+        min-height: 22px; 
+ 
+        padding: 4px 6px; 
+ 
+        font-size: 8px; 
+    } 
+ 
+    .pc-rules { 
+        display: none; 
+    } 
+} 
+ 
+ 
+/* ========================================================= 
+   PANTALLAS CON POCA ALTURA — DESKTOP 
+========================================================= */ 
+ 
+@media (max-height: 680px) and (min-width: 851px) { 
+ 
+    .pc-content { 
+        padding: 7px 0; 
+    } 
+ 
+    .pc-header { 
+        margin-bottom: 6px; 
+    } 
+ 
+    .pc-title-area h1 { 
+        font-size: 26px; 
+    } 
+ 
+    .pc-title-area p { 
+        display: none; 
+    } 
+ 
+    .pc-stat { 
+        padding: 5px 8px; 
+    } 
+ 
+    .pc-stat-label { 
+        font-size: 9px; 
+    } 
+ 
+    .pc-stat-value { 
+        font-size: 15px; 
+    } 
+ 
+    .pc-board-panel { 
+        padding: 9px; 
+    } 
+ 
+    .pc-level-header { 
+        margin-bottom: 5px; 
+    } 
+ 
+    .pc-level-description { 
+        display: none; 
+    } 
+ 
+    .pc-control-panel { 
+        padding: 7px; 
+ 
+        gap: 5px; 
+    } 
+ 
+    .pc-card { 
+        padding: 8px; 
+    } 
+ 
+    .pc-command { 
+        padding: 6px 4px; 
+    } 
+ 
+    .pc-command-icon { 
+        font-size: 16px; 
+    } 
+ 
+    .pc-rules { 
+        display: none; 
+    } 
+ 
+    .pc-button { 
+        padding: 7px; 
+    } 
+ 
+    .pc-status { 
+        min-height: 23px; 
+ 
+        padding: 5px; 
+    } 
+} 
+ 
+ 
+/* ========================================================= 
+   PANTALLAS CON POCA ALTURA — TABLET/MÓVIL 
+========================================================= */ 
+ 
+@media (max-height: 650px) and (max-width: 850px) { 
+ 
+    .pc-content { 
+        padding: 5px 0; 
+    } 
+ 
+    .pc-header { 
+        margin-bottom: 4px; 
+    } 
+ 
+    .pc-title-area p { 
+        display: none; 
+    } 
+ 
+    .pc-title-area h1 { 
+        font-size: 21px; 
+    } 
+ 
+    .pc-stat { 
+        padding: 4px; 
+    } 
+ 
+    .pc-stat-value { 
+        font-size: 13px; 
+    } 
+ 
+    .pc-main { 
+ 
+        grid-template-rows: 
+            minmax(0, 1fr) 
+            160px; 
+    } 
+ 
+    .pc-board-panel { 
+        padding: 7px; 
+    } 
+ 
+    .pc-level-header { 
+        margin-bottom: 3px; 
+    } 
+ 
+    .pc-level-description { 
+        display: none; 
+    } 
+ 
+    .pc-control-panel { 
+        padding: 6px; 
+ 
+        gap: 4px; 
+    } 
+ 
+    .pc-card { 
+        padding: 6px; 
+    } 
+ 
+    .pc-card-title { 
+        margin-bottom: 4px; 
+    } 
+ 
+    .pc-command { 
+        padding: 4px 2px; 
+    } 
+ 
+    .pc-command-icon { 
+        font-size: 13px; 
+    } 
+ 
+    .pc-button { 
+        padding: 6px; 
+    } 
+ 
+    .pc-status { 
+        min-height: 20px; 
+ 
+        padding: 3px 5px; 
+    } 
+} 
+ 
+ 
+/* ========================================================= 
+   PANTALLAS MUY BAJAS 
+========================================================= */ 
+ 
+@media (max-height: 520px) { 
+ 
+    .pc-content { 
+        padding: 4px 0; 
+    } 
+ 
+    .pc-header { 
+        flex-direction: row; 
+ 
+        margin-bottom: 4px; 
+ 
+        gap: 8px; 
+    } 
+ 
+    .pc-title-area h1 { 
+        font-size: 19px; 
+    } 
+ 
+    .pc-title-area p { 
+        display: none; 
+    } 
+ 
+    .pc-stats { 
+        width: auto; 
+    } 
+ 
+    .pc-stat { 
+        min-width: 65px; 
+ 
+        padding: 3px 5px; 
+    } 
+ 
+    .pc-stat-label { 
+        font-size: 7px; 
+    } 
+ 
+    .pc-stat-value { 
+        font-size: 11px; 
+    } 
+ 
+    .pc-main { 
+        grid-template-rows: 
+            minmax(0, 1fr) 
+            125px; 
+    } 
+ 
+    .pc-board-panel { 
+        padding: 5px; 
+    } 
+ 
+    .pc-level-header { 
+        display: none; 
+    } 
+ 
+    .pc-control-panel { 
+        padding: 5px; 
+ 
+        gap: 3px; 
+    } 
+ 
+    .pc-card { 
+        padding: 5px; 
+    } 
+ 
+    .pc-card-title { 
+        font-size: 9px; 
+ 
+        margin-bottom: 3px; 
+    } 
+ 
+    .pc-card-subtitle { 
+        display: none; 
+    } 
+ 
+    .pc-command { 
+        padding: 3px 1px; 
+ 
+        font-size: 6px; 
+    } 
+ 
+    .pc-command-icon { 
+        font-size: 11px; 
+    } 
+ 
+    .pc-button { 
+        padding: 5px; 
+ 
+        font-size: 8px; 
+    } 
+ 
+    .pc-status { 
+        min-height: 18px; 
+ 
+        padding: 2px; 
+ 
+        font-size: 7px; 
+    } 
+} 
+ 
+ 
+/* ========================================================= 
+   MODAL EN PANTALLAS PEQUEÑAS 
+========================================================= */ 
+ 
+@media (max-height: 500px) { 
+ 
+    .pc-modal { 
+        padding: 10px; 
+    } 
+ 
+    .pc-modal-content { 
+        padding: 18px; 
+ 
+        max-height: calc(100vh - 20px); 
+    } 
+ 
+    .pc-modal-icon { 
+        font-size: 40px; 
+ 
+        margin-bottom: 3px; 
+    } 
+ 
+    .pc-modal h2 { 
+        font-size: 21px; 
+ 
+        margin-bottom: 5px; 
+    } 
+ 
+    .pc-modal p { 
+        font-size: 10px; 
+ 
+        margin-bottom: 10px; 
+    } 
+ 
+    .pc-modal-buttons button { 
+        padding: 7px; 
+ 
+        font-size: 9px; 
+    } 
+} 
+ 
+</style>
+</head>
+
+
+<body>
+
+<div id="programming-car-game">
+
+    <div class="pc-content">
+
+        <!-- =====================================================
+             ENCABEZADO
+        ====================================================== -->
+
+        <header class="pc-header">
+
+            <div class="pc-title-area">
+
+                <h1>🚗 Programando el Carrito</h1>
+
+                <p>
+                    Crea un algoritmo y guía el carrito hasta la meta.
+                </p>
+
+            </div>
+
+
+            <div class="pc-stats">
+
+                <div class="pc-stat">
+
+                    <span class="pc-stat-label">
+                        Nivel
+                    </span>
+
+                    <span
+                        class="pc-stat-value"
+                        id="pc-level">
+                        1
+                    </span>
+
+                </div>
+
+
+                <div class="pc-stat">
+
+                    <span class="pc-stat-label">
+                        Movimientos
+                    </span>
+
+                    <span
+                        class="pc-stat-value"
+                        id="pc-moves">
+                        0
+                    </span>
+
+                </div>
+
+
+                <div class="pc-stat">
+
+                    <span class="pc-stat-label">
+                        Récord
+                    </span>
+
+                    <span
+                        class="pc-stat-value"
+                        id="pc-record">
+                        —
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =====================================================
+             CONTENIDO PRINCIPAL
+        ====================================================== -->
+
+        <main class="pc-main">
+
+
+            <!-- =================================================
+                 TABLERO
+            ================================================== -->
+
+            <section class="pc-panel pc-board-panel">
+
+                <div class="pc-level-header">
+
+                    <div>
+
+                        <div
+                            class="pc-level-title"
+                            id="pc-level-title">
+
+                            Nivel 1 — Primeros pasos
+
+                        </div>
+
+                        <div
+                            class="pc-level-description"
+                            id="pc-level-description">
+
+                            Aprende a utilizar la instrucción avanzar.
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="pc-limit">
+
+                        Máximo:
+
+                        <span id="pc-limit">
+                            8
+                        </span>
+
+                        instrucciones
+
+                    </div>
+
+                </div>
+
+
+                <div class="pc-board-container">
+
+                    <div id="pc-board"></div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 PANEL DE PROGRAMACIÓN
+            ================================================== -->
+
+            <aside class="pc-panel pc-control-panel">
+
+
+                <!-- COMANDOS -->
+
+                <div class="pc-card">
+
+                    <div class="pc-card-title">
+
+                        <span>
+                            🧩 Instrucciones
+                        </span>
+
+                        <span
+                            class="pc-card-subtitle">
+
+                            Arrastra o haz clic
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="pc-command-palette">
+
+
+                        <div
+                            class="pc-command"
+                            draggable="true"
+                            data-command="forward">
+
+                            <span class="pc-command-icon">
+                                ⬆️
+                            </span>
+
+                            AVANZAR
+
+                        </div>
+
+
+                        <div
+                            class="pc-command"
+                            draggable="true"
+                            data-command="backward">
+
+                            <span class="pc-command-icon">
+                                ⬇️
+                            </span>
+
+                            RETROCEDER
+
+                        </div>
+
+
+                        <div
+                            class="pc-command"
+                            draggable="true"
+                            data-command="left">
+
+                            <span class="pc-command-icon">
+                                ↺
+                            </span>
+
+                            GIRAR IZQ.
+
+                        </div>
+
+
+                        <div
+                            class="pc-command"
+                            draggable="true"
+                            data-command="right">
+
+                            <span class="pc-command-icon">
+                                ↻
+                            </span>
+
+                            GIRAR DER.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- PROGRAMA -->
+
+                <div class="pc-card pc-program-card">
+
+                    <div class="pc-card-title">
+
+                        <span>
+                            💻 Tu programa
+                        </span>
+
+                        <span
+                            class="pc-card-subtitle"
+                            id="pc-program-count">
+
+                            0 / 8
+
+                        </span>
+
+                    </div>
+
+
+                    <div id="pc-program">
+
+                        <div class="pc-empty-program">
+
+                            Arrastra las instrucciones aquí
+                            para construir tu algoritmo.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- BOTONES -->
+
+                <div class="pc-buttons">
+
+                    <button
+                        class="pc-button pc-run"
+                        id="pc-run">
+
+                        ▶ EJECUTAR
+
+                    </button>
+
+
+                    <button
+                        class="pc-button pc-stop"
+                        id="pc-stop">
+
+                        ⏹ DETENER
+
+                    </button>
+
+
+                    <button
+                        class="pc-button pc-reset"
+                        id="pc-reset">
+
+                        ↻ REINICIAR
+
+                    </button>
+
+
+                    <button
+                        class="pc-button pc-next"
+                        id="pc-next"
+                        style="display:none;">
+
+                        SIGUIENTE →
+
+                    </button>
+
+                </div>
+
+
+
+                <!-- ESTADO -->
+
+                <div
+                    class="pc-status"
+                    id="pc-status">
+
+                    Construye tu programa para comenzar.
+
+                </div>
+
+
+
+                <!-- REGLAS -->
+
+                <div class="pc-rules">
+
+                    <div class="pc-rules-title">
+
+                        💡 ¿Cómo jugar?
+
+                    </div>
+
+
+                    <div class="pc-rule">
+
+                        🧩 Organiza las instrucciones.
+
+                    </div>
+
+
+                    <div class="pc-rule">
+
+                        ▶ Ejecuta el algoritmo.
+
+                    </div>
+
+
+                    <div class="pc-rule">
+
+                        🎯 Lleva el carrito a la meta.
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </main>
+
+    </div>
+
+
+    <!-- =====================================================
+         MODAL DE VICTORIA
+    ====================================================== -->
+
+    <div
+        class="pc-modal"
+        id="pc-victory-modal">
+
+        <div class="pc-modal-content">
+
+            <div class="pc-modal-icon">
+                🏆
+            </div>
+
+            <h2>
+                ¡Nivel completado!
+            </h2>
+
+            <p id="pc-victory-text">
+                ¡Excelente trabajo!
+            </p>
+
+            <div class="pc-modal-buttons">
+
+                <button
+                    class="pc-button pc-reset"
+                    id="pc-modal-replay">
+
+                    ↻ Repetir
+
+                </button>
+
+
+                <button
+                    class="pc-button pc-next"
+                    id="pc-modal-next">
+
+                    Siguiente →
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+/* ============================================================
+   PROGRAMANDO EL CARRITO
+   LÓGICA PRINCIPAL
+============================================================ */
+
+
+/* ============================================================
+   REFERENCIAS HTML
+============================================================ */
+
+const game =
+    document.getElementById(
+        "programming-car-game"
+    );
+
+const boardElement =
+    document.getElementById(
+        "pc-board"
+    );
+
+const levelElement =
+    document.getElementById(
+        "pc-level"
+    );
+
+const movesElement =
+    document.getElementById(
+        "pc-moves"
+    );
+
+const recordElement =
+    document.getElementById(
+        "pc-record"
+    );
+
+const levelTitleElement =
+    document.getElementById(
+        "pc-level-title"
+    );
+
+const levelDescriptionElement =
+    document.getElementById(
+        "pc-level-description"
+    );
+
+const limitElement =
+    document.getElementById(
+        "pc-limit"
+    );
+
+const programElement =
+    document.getElementById(
+        "pc-program"
+    );
+
+const programCountElement =
+    document.getElementById(
+        "pc-program-count"
+    );
+
+const statusElement =
+    document.getElementById(
+        "pc-status"
+    );
+
+const runButton =
+    document.getElementById(
+        "pc-run"
+    );
+
+const stopButton =
+    document.getElementById(
+        "pc-stop"
+    );
+
+const resetButton =
+    document.getElementById(
+        "pc-reset"
+    );
+
+const nextButton =
+    document.getElementById(
+        "pc-next"
+    );
+
+const victoryModal =
+    document.getElementById(
+        "pc-victory-modal"
+    );
+
+const victoryText =
+    document.getElementById(
+        "pc-victory-text"
+    );
+
+const modalReplay =
+    document.getElementById(
+        "pc-modal-replay"
+    );
+
+const modalNext =
+    document.getElementById(
+        "pc-modal-next"
+    );
+
+
+/* ============================================================
+   DEFINICIÓN DE NIVELES
+============================================================ */
+
+/*
+    0 = camino
+    1 = obstáculo
+    2 = meta
+*/
+
+const levels = [
+
+    {
+        title:
+            "Nivel 1 — Primeros pasos",
+
+        description:
+            "Aprende a utilizar la instrucción avanzar.",
+
+        size: 6,
+
+        limit: 5,
+
+        start: {
+            row: 4,
+            col: 1,
+            direction: 0
+        },
+
+        goal: {
+            row: 1,
+            col: 1
+        },
+
+        obstacles: []
+    },
+
+
+    {
+        title:
+            "Nivel 2 — Primer giro",
+
+        description:
+            "Ahora tendrás que girar para encontrar la meta.",
+
+        size: 6,
+
+        limit: 8,
+
+        start: {
+            row: 4,
+            col: 1,
+            direction: 0
+        },
+
+        goal: {
+            row: 1,
+            col: 4
+        },
+
+        obstacles: []
+    },
+
+
+    {
+        title:
+            "Nivel 3 — Cambiando de dirección",
+
+        description:
+            "Combina movimientos y giros para llegar a la meta.",
+
+        size: 7,
+
+        limit: 10,
+
+        start: {
+            row: 5,
+            col: 1,
+            direction: 0
+        },
+
+        goal: {
+            row: 2,
+            col: 5
+        },
+
+        obstacles: [
+            [4, 3],
+            [3, 3]
+        ]
+    },
+
+
+    {
+        title:
+            "Nivel 4 — Primer obstáculo",
+
+        description:
+            "Planifica tu ruta evitando los obstáculos.",
+
+        size: 7,
+
+        limit: 12,
+
+        start: {
+            row: 5,
+            col: 1,
+            direction: 0
+        },
+
+        goal: {
+            row: 1,
+            col: 5
+        },
+
+        obstacles: [
+            [4, 2],
+            [4, 3],
+            [3, 3],
+            [2, 3]
+        ]
+    },
+
+
+    {
+        title:
+            "Nivel 5 — Ruta alternativa",
+
+        description:
+            "Encuentra una ruta alrededor de los obstáculos.",
+
+        size: 8,
+
+        limit: 15,
+
+        start: {
+            row: 6,
+            col: 1,
+            direction: 0
+        },
+
+        goal: {
+            row: 1,
+            col: 6
+        },
+
+        obstacles: [
+            [5, 2],
+            [5, 3],
+            [5, 4],
+
+            [4, 4],
+
+            [3, 2],
+            [3, 3],
+            [3, 4]
+        ]
+    },
+
+
+    {
+        title:
+            "Nivel 6 — El camino se complica",
+
+        description:
+            "Necesitarás utilizar varios giros y movimientos.",
+
+        size: 8,
+
+        limit: 18,
+
+        start: {
+            row: 6,
+            col: 1,
+            direction: 0
+        },
+
+        goal: {
+            row: 1,
+            col: 6
+        },
+
+        obstacles: [
+            [5, 2],
+            [4, 2],
+            [3, 2],
+
+            [3, 3],
+            [3, 4],
+            [3, 5],
+
+            [4, 5],
+            [5, 5]
+        ]
+    },
+
+
+    {
+        title:
+            "Nivel 7 — Piensa antes de programar",
+
+        description:
+            "Una buena planificación hará que utilices menos instrucciones.",
+
+        size: 8,
+
+        limit: 20,
+
+        start: {
+            row: 6,
+            col: 1,
+            direction: 0
+        },
+
+        goal: {
+            row: 1,
+            col: 6
+        },
+
+        obstacles: [
+            [5, 1],
+            [5, 2],
+
+            [4, 2],
+            [4, 3],
+
+            [3, 3],
+            [3, 4],
+
+            [2, 4],
+            [2, 5],
+
+            [3, 5],
+            [4, 5]
+        ]
+    },
+
+
+    {
+        title:
+            "Nivel 8 — Laberinto",
+
+        description:
+            "Construye cuidadosamente tu algoritmo para atravesar el laberinto.",
+
+        size: 8,
+
+        limit: 24,
+
+        start: {
+            row: 6,
+            col: 1,
+            direction: 0
+        },
+
+        goal: {
+            row: 1,
+            col: 6
+        },
+
+        obstacles: [
+
+            [6, 2],
+            [5, 2],
+            [4, 2],
+
+            [4, 3],
+            [4, 4],
+
+            [3, 4],
+            [2, 4],
+
+            [2, 5],
+            [2, 6],
+
+            [3, 6],
+            [4, 6],
+
+            [4, 5],
+            [5, 5]
+        ]
+    },
+
+
+    {
+        title:
+            "Nivel 9 — Usa el retroceso",
+
+        description:
+            "En este nivel necesitarás utilizar la instrucción retroceder.",
+
+        size: 9,
+
+        limit: 28,
+
+        start: {
+            row: 7,
+            col: 1,
+            direction: 0
+        },
+
+        goal: {
+            row: 1,
+            col: 7
+        },
+
+        obstacles: [
+
+            [6, 2],
+            [5, 2],
+
+            [5, 3],
+            [5, 4],
+
+            [4, 4],
+
+            [3, 2],
+            [3, 3],
+            [3, 4],
+            [3, 5],
+
+            [2, 5],
+            [2, 6],
+
+            [4, 6],
+            [5, 6],
+            [6, 6]
+        ]
+    },
+
+
+    {
+        title:
+            "Nivel 10 — Desafío final",
+
+        description:
+            "Demuestra que puedes construir un algoritmo completo.",
+
+        size: 9,
+
+        limit: 32,
+
+        start: {
+            row: 7,
+            col: 1,
+            direction: 0
+        },
+
+        goal: {
+            row: 1,
+            col: 7
+        },
+
+        obstacles: [
+
+            [7, 2],
+            [6, 2],
+            [5, 2],
+
+            [5, 3],
+            [5, 4],
+            [5, 5],
+
+            [4, 5],
+
+            [3, 3],
+            [3, 4],
+            [3, 5],
+            [3, 6],
+
+            [2, 6],
+
+            [2, 4],
+
+            [4, 7],
+            [5, 7],
+            [6, 7]
+        ]
+    }
+
+];
+
+
+/* ============================================================
+   ESTADO DEL JUEGO
+============================================================ */
+
+let currentLevel = 0;
+
+let currentLevelData = null;
+
+let program = [];
+
+let moves = 0;
+
+let isRunning = false;
+
+let stopRequested = false;
+
+let car = {
+
+    row: 0,
+
+    col: 0,
+
+    direction: 0
+
+};
+
+let record = null;
+
+
+/*
+    Direcciones:
+
+    0 = arriba
+    1 = derecha
+    2 = abajo
+    3 = izquierda
+*/
+
+const directions = [
+
+    {
+        row: -1,
+        col: 0
+    },
+
+    {
+        row: 0,
+        col: 1
+    },
+
+    {
+        row: 1,
+        col: 0
+    },
+
+    {
+        row: 0,
+        col: -1
+    }
+
+];
+
+
+/* ============================================================
+   ICONOS
+============================================================ */
+
+const commandInfo = {
+
+    forward: {
+        icon: "⬆️",
+        name: "AVANZAR"
+    },
+
+    backward: {
+        icon: "⬇️",
+        name: "RETROCEDER"
+    },
+
+    left: {
+        icon: "↺",
+        name: "GIRAR IZQ."
+    },
+
+    right: {
+        icon: "↻",
+        name: "GIRAR DER."
+    }
+
+};
+
+
+/* ============================================================
+   INICIAR NIVEL
+============================================================ */
+
+function loadLevel(index) {
+
+    if (index < 0) {
+        index = 0;
+    }
+
+    if (index >= levels.length) {
+        index = levels.length - 1;
+    }
+
+    currentLevel = index;
+
+    currentLevelData =
+        levels[currentLevel];
+
+    program = [];
+
+    moves = 0;
+
+    isRunning = false;
+
+    stopRequested = false;
+
+    car = {
+
+        row:
+            currentLevelData.start.row,
+
+        col:
+            currentLevelData.start.col,
+
+        direction:
+            currentLevelData.start.direction
+
+    };
+
+
+    record =
+        localStorage.getItem(
+            "programmingCarRecord_" +
+            currentLevel
+        );
+
+
+    if (record !== null) {
+
+        record =
+            parseInt(record);
+
+    }
+
+
+    levelElement.textContent =
+        currentLevel + 1;
+
+    movesElement.textContent =
+        "0";
+
+    recordElement.textContent =
+        record !== null
+            ? record
+            : "—";
+
+
+    levelTitleElement.textContent =
+        currentLevelData.title;
+
+    levelDescriptionElement.textContent =
+        currentLevelData.description;
+
+    limitElement.textContent =
+        currentLevelData.limit;
+
+
+    nextButton.style.display =
+        "none";
+
+
+    victoryModal.classList.remove(
+        "show"
+    );
+
+
+    statusElement.textContent =
+        "Construye tu programa para comenzar.";
+
+    statusElement.className =
+        "pc-status";
+
+
+    renderBoard();
+
+    renderProgram();
+
+}
+
+
+/* ============================================================
+   CREAR TABLERO
+============================================================ */
+
+function renderBoard() {
+
+    const level =
+        currentLevelData;
+
+    boardElement.innerHTML = "";
+
+    boardElement.style.setProperty(
+        "--board-size",
+        level.size
+    );
+
+
+    for (
+        let row = 0;
+        row < level.size;
+        row++
+    ) {
+
+        for (
+            let col = 0;
+            col < level.size;
+            col++
+        ) {
+
+            const cell =
+                document.createElement("div");
+
+            cell.className =
+                "pc-cell path";
+
+
+            /* ----------------------------------------------
+               OBSTÁCULOS
+            ---------------------------------------------- */
+
+            const obstacle =
+                level.obstacles.some(
+                    obstacle =>
+                        obstacle[0] === row &&
+                        obstacle[1] === col
+                );
+
+
+            if (obstacle) {
+
+                cell.classList.remove(
+                    "path"
+                );
+
+                cell.classList.add(
+                    "obstacle"
+                );
+
+            }
+
+
+            /* ----------------------------------------------
+               META
+            ---------------------------------------------- */
+
+            if (
+                level.goal.row === row &&
+                level.goal.col === col
+            ) {
+
+                cell.classList.add(
+                    "goal"
+                );
+
+            }
+
+
+            /* ----------------------------------------------
+               INICIO
+            ---------------------------------------------- */
+
+            if (
+                level.start.row === row &&
+                level.start.col === col
+            ) {
+
+                cell.classList.add(
+                    "start"
+                );
+
+            }
+
+
+            cell.dataset.row =
+                row;
+
+            cell.dataset.col =
+                col;
+
+
+            boardElement.appendChild(
+                cell
+            );
+
+        }
+
+    }
+
+
+    renderCar();
+
+}
+
+
+/* ============================================================
+   DIBUJAR CARRITO
+============================================================ */
+
+function renderCar() {
+
+    document
+        .querySelectorAll(".pc-car")
+        .forEach(
+            element =>
+                element.remove()
+        );
+
+
+    const cells =
+        document.querySelectorAll(
+            ".pc-cell"
+        );
+
+
+    const index =
+        car.row *
+            currentLevelData.size +
+        car.col;
+
+
+    const cell =
+        cells[index];
+
+
+    if (!cell) {
+        return;
+    }
+
+
+    const carElement =
+        document.createElement(
+            "div"
+        );
+
+    carElement.className =
+        "pc-car";
+
+    carElement.textContent =
+        "🚗";
+
+
+    /*
+        Rotación según dirección.
+    */
+
+    const rotation =
+        car.direction * 90 + 90;
+
+
+    carElement.style.transform =
+        `rotate(${rotation}deg)`;
+
+
+    cell.appendChild(
+        carElement
+    );
+
+}
+
+
+/* ============================================================
+   RENDERIZAR PROGRAMA
+============================================================ */
+
+function renderProgram() {
+
+    programElement.innerHTML = "";
+
+
+    if (program.length === 0) {
+
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+        empty.className =
+            "pc-empty-program";
+
+        empty.textContent =
+            "Arrastra las instrucciones aquí para construir tu algoritmo.";
+
+        programElement.appendChild(
+            empty
+        );
+
+    }
+
+
+    program.forEach(
+        (command, index) => {
+
+            const block =
+                document.createElement(
+                    "div"
+                );
+
+            block.className =
+                "pc-program-block";
+
+            block.draggable =
+                true;
+
+            block.dataset.index =
+                index;
+
+
+            const number =
+                document.createElement(
+                    "div"
+                );
+
+            number.className =
+                "pc-block-number";
+
+            number.textContent =
+                index + 1;
+
+
+            const icon =
+                document.createElement(
+                    "div"
+                );
+
+            icon.className =
+                "pc-block-icon";
+
+            icon.textContent =
+                commandInfo[command].icon;
+
+
+            const name =
+                document.createElement(
+                    "div"
+                );
+
+            name.className =
+                "pc-block-name";
+
+            name.textContent =
+                commandInfo[command].name;
+
+
+            const deleteButton =
+                document.createElement(
+                    "button"
+                );
+
+            deleteButton.className =
+                "pc-delete-block";
+
+            deleteButton.textContent =
+                "✕";
+
+            deleteButton.title =
+                "Eliminar instrucción";
+
+
+            deleteButton.addEventListener(
+                "click",
+                event => {
+
+                    event.stopPropagation();
+
+                    if (isRunning) {
+                        return;
+                    }
+
+                    program.splice(
+                        index,
+                        1
+                    );
+
+                    renderProgram();
+
+                }
+            );
+
+
+            block.appendChild(
+                number
+            );
+
+            block.appendChild(
+                icon
+            );
+
+            block.appendChild(
+                name
+            );
+
+            block.appendChild(
+                deleteButton
+            );
+
+
+            /* ----------------------------------------------
+               DRAG DEL BLOQUE
+            ---------------------------------------------- */
+
+            block.addEventListener(
+                "dragstart",
+                event => {
+
+                    if (isRunning) {
+
+                        event.preventDefault();
+
+                        return;
+                    }
+
+
+                    block.classList.add(
+                        "dragging"
+                    );
+
+
+                    event.dataTransfer.effectAllowed =
+                        "move";
+
+
+                    event.dataTransfer.setData(
+                        "text/plain",
+                        index
+                    );
+
+                }
+            );
+
+
+            block.addEventListener(
+                "dragend",
+                () => {
+
+                    block.classList.remove(
+                        "dragging"
+                    );
+
+                }
+            );
+
+
+            block.addEventListener(
+                "dragover",
+                event => {
+
+                    event.preventDefault();
+
+                }
+            );
+
+
+            block.addEventListener(
+                "drop",
+                event => {
+
+                    event.preventDefault();
+
+
+                    if (isRunning) {
+                        return;
+                    }
+
+
+                    const fromIndex =
+                        parseInt(
+                            event.dataTransfer.getData(
+                                "text/plain"
+                            )
+                        );
+
+
+                    const toIndex =
+                        index;
+
+
+                    if (
+                        isNaN(fromIndex) ||
+                        fromIndex === toIndex
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    const moved =
+                        program.splice(
+                            fromIndex,
+                            1
+                        )[0];
+
+
+                    program.splice(
+                        toIndex,
+                        0,
+                        moved
+                    );
+
+
+                    renderProgram();
+
+                }
+            );
+
+
+            programElement.appendChild(
+                block
+            );
+
+        }
+    );
+
+
+    programCountElement.textContent =
+        `${program.length} / ${currentLevelData.limit}`;
+
+}
+
+
+/* ============================================================
+   AGREGAR COMANDO
+============================================================ */
+
+function addCommand(command) {
+
+    if (isRunning) {
+        return;
+    }
+
+
+    if (
+        program.length >=
+        currentLevelData.limit
+    ) {
+
+        setStatus(
+            "Has alcanzado el límite de instrucciones.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    program.push(
+        command
+    );
+
+    renderProgram();
+
+
+    setStatus(
+        "Instrucción agregada.",
+        ""
+    );
+
+}
+
+
+/* ============================================================
+   ARRASTRAR NUEVOS COMANDOS
+============================================================ */
+
+document
+    .querySelectorAll(
+        ".pc-command"
+    )
+    .forEach(
+        commandElement => {
+
+
+            commandElement.addEventListener(
+                "click",
+                () => {
+
+                    addCommand(
+                        commandElement.dataset.command
+                    );
+
+                }
+            );
+
+
+            commandElement.addEventListener(
+                "dragstart",
+                event => {
+
+                    if (isRunning) {
+
+                        event.preventDefault();
+
+                        return;
+
+                    }
+
+
+                    event.dataTransfer.setData(
+                        "text/command",
+                        commandElement.dataset.command
+                    );
+
+
+                    event.dataTransfer.effectAllowed =
+                        "copy";
+
+                }
+            );
+
+        }
+    );
+
+
+/* ============================================================
+   ÁREA DE PROGRAMA — DROP
+============================================================ */
+
+programElement.addEventListener(
+    "dragover",
+    event => {
+
+        event.preventDefault();
+
+    }
+);
+
+
+programElement.addEventListener(
+    "drop",
+    event => {
+
+        event.preventDefault();
+
+
+        if (isRunning) {
+            return;
+        }
+
+
+        const command =
+            event.dataTransfer.getData(
+                "text/command"
+            );
+
+
+        if (command) {
+
+            addCommand(
+                command
+            );
+
+            return;
+
+        }
+
+
+        /*
+            Si se arrastra un bloque existente
+            hasta el área vacía.
+        */
+
+        const index =
+            parseInt(
+                event.dataTransfer.getData(
+                    "text/plain"
+                )
+            );
+
+
+        if (
+            !isNaN(index) &&
+            index >= 0 &&
+            index < program.length
+        ) {
+
+            const moved =
+                program.splice(
+                    index,
+                    1
+                )[0];
+
+
+            program.push(
+                moved
+            );
+
+
+            renderProgram();
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   COMPROBAR SI UNA CELDA ES OBSTÁCULO
+============================================================ */
+
+function isObstacle(row, col) {
+
+    return currentLevelData.obstacles.some(
+        obstacle =>
+            obstacle[0] === row &&
+            obstacle[1] === col
+    );
+
+}
+
+
+/* ============================================================
+   COMPROBAR SI ESTÁ DENTRO DEL TABLERO
+============================================================ */
+
+function isInsideBoard(row, col) {
+
+    return (
+        row >= 0 &&
+        row < currentLevelData.size &&
+        col >= 0 &&
+        col < currentLevelData.size
+    );
+
+}
+
+
+/* ============================================================
+   COMPROBAR META
+============================================================ */
+
+function reachedGoal() {
+
+    return (
+        car.row === currentLevelData.goal.row &&
+        car.col === currentLevelData.goal.col
+    );
+
+}
+
+
+/* ============================================================
+   EJECUTAR UNA INSTRUCCIÓN
+============================================================ */
+
+async function executeCommand(command) {
+
+    if (stopRequested) {
+        return false;
+    }
+
+
+    /* ========================================================
+       GIRAR IZQUIERDA
+    ======================================================== */
+
+    if (command === "left") {
+
+        car.direction =
+            (car.direction + 3) % 4;
+
+        moves++;
+
+        movesElement.textContent =
+            moves;
+
+        renderCar();
+
+        await sleep(350);
+
+        return true;
+    }
+
+
+    /* ========================================================
+       GIRAR DERECHA
+    ======================================================== */
+
+    if (command === "right") {
+
+        car.direction =
+            (car.direction + 1) % 4;
+
+        moves++;
+
+        movesElement.textContent =
+            moves;
+
+        renderCar();
+
+        await sleep(350);
+
+        return true;
+    }
+
+
+    /* ========================================================
+       MOVIMIENTO
+    ======================================================== */
+
+    let movementDirection =
+        car.direction;
+
+
+    /*
+        Retroceder utiliza la dirección contraria.
+    */
+
+    if (command === "backward") {
+
+        movementDirection =
+            (car.direction + 2) % 4;
+
+    }
+
+
+    const direction =
+        directions[
+            movementDirection
+        ];
+
+
+    const newRow =
+        car.row +
+        direction.row;
+
+    const newCol =
+        car.col +
+        direction.col;
+
+
+    /* ========================================================
+       SALIR DEL TABLERO
+    ======================================================== */
+
+    if (
+        !isInsideBoard(
+            newRow,
+            newCol
+        )
+    ) {
+
+        setStatus(
+            "💥 El carrito salió de la cuadrícula.",
+            "error"
+        );
+
+        return false;
+    }
+
+
+    /* ========================================================
+       CHOCAR CON OBSTÁCULO
+    ======================================================== */
+
+    if (
+        isObstacle(
+            newRow,
+            newCol
+        )
+    ) {
+
+        setStatus(
+            "💥 ¡El carrito chocó con un obstáculo!",
+            "error"
+        );
+
+        return false;
+    }
+
+
+    /* ========================================================
+       REALIZAR MOVIMIENTO
+    ======================================================== */
+
+    car.row =
+        newRow;
+
+    car.col =
+        newCol;
+
+    moves++;
+
+    movesElement.textContent =
+        moves;
+
+
+    renderCar();
+
+
+    /*
+        Pequeña animación.
+    */
+
+    const carElement =
+        document.querySelector(
+            ".pc-car"
+        );
+
+
+    if (carElement) {
+
+        carElement.classList.add(
+            "moving"
+        );
+
+
+        setTimeout(
+            () => {
+
+                carElement.classList.remove(
+                    "moving"
+                );
+
+            },
+            250
+        );
+
+    }
+
+
+    await sleep(400);
+
+
+    return true;
+
+}
+
+
+/* ============================================================
+   EJECUTAR PROGRAMA COMPLETO
+============================================================ */
+
+async function runProgram() {
+
+    if (isRunning) {
+        return;
+    }
+
+
+    if (program.length === 0) {
+
+        setStatus(
+            "Primero debes agregar instrucciones.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    isRunning = true;
+
+    stopRequested = false;
+
+
+    runButton.disabled =
+        true;
+
+    resetButton.disabled =
+        true;
+
+
+    setStatus(
+        "▶ Ejecutando algoritmo...",
+        "running"
+    );
+
+
+    for (
+        let i = 0;
+        i < program.length;
+        i++
+    ) {
+
+        if (stopRequested) {
+            break;
+        }
+
+
+        highlightProgramBlock(
+            i
+        );
+
+
+        const success =
+            await executeCommand(
+                program[i]
+            );
+
+
+        if (!success) {
+
+            isRunning =
+                false;
+
+            runButton.disabled =
+                false;
+
+            resetButton.disabled =
+                false;
+
+            return;
+
+        }
+
+
+        /*
+            Comprobar si llegó a la meta
+            después de cada instrucción.
+        */
+
+        if (reachedGoal()) {
+
+            await sleep(250);
+
+            finishLevel();
+
+            return;
+
+        }
+
+    }
+
+
+    /*
+        Si terminó todas las instrucciones
+        sin llegar a la meta.
+    */
+
+    if (
+        !reachedGoal() &&
+        !stopRequested
+    ) {
+
+        setStatus(
+            "El programa terminó, pero el carrito no llegó a la meta.",
+            "error"
+        );
+
+    }
+
+
+    isRunning =
+        false;
+
+    runButton.disabled =
+        false;
+
+    resetButton.disabled =
+        false;
+
+    clearProgramHighlight();
+
+}
+
+
+/* ============================================================
+   DESTACAR INSTRUCCIÓN ACTUAL
+============================================================ */
+
+function highlightProgramBlock(index) {
+
+    clearProgramHighlight();
+
+
+    const blocks =
+        document.querySelectorAll(
+            ".pc-program-block"
+        );
+
+
+    if (blocks[index]) {
+
+        blocks[index].style.background =
+            "linear-gradient(90deg, rgba(0,220,150,0.3), rgba(50,180,255,0.18))";
+
+
+        blocks[index].style.borderColor =
+            "rgba(0,230,160,0.6)";
+
+
+        blocks[index].scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
+
+    }
+
+}
+
+
+/* ============================================================
+   QUITAR DESTACADO
+============================================================ */
+
+function clearProgramHighlight() {
+
+    document
+        .querySelectorAll(
+            ".pc-program-block"
+        )
+        .forEach(
+            block => {
+
+                block.style.background =
+                    "";
+
+                block.style.borderColor =
+                    "";
+
+            }
+        );
+
+}
+
+
+/* ============================================================
+   FINALIZAR NIVEL
+============================================================ */
+
+function finishLevel() {
+
+    isRunning =
+        false;
+
+    runButton.disabled =
+        false;
+
+    resetButton.disabled =
+        false;
+
+    clearProgramHighlight();
+
+
+    /*
+        Guardar récord.
+    */
+
+    const oldRecord =
+        localStorage.getItem(
+            "programmingCarRecord_" +
+            currentLevel
+        );
+
+
+    if (
+        oldRecord === null ||
+        moves < parseInt(oldRecord)
+    ) {
+
+        localStorage.setItem(
+            "programmingCarRecord_" +
+            currentLevel,
+            moves
+        );
+
+
+        record =
+            moves;
+
+
+        recordElement.textContent =
+            moves;
+
+    }
+
+
+    setStatus(
+        "🎯 ¡Llegaste a la meta!",
+        "success"
+    );
+
+
+    createConfetti();
+
+
+    const nextLevelExists =
+        currentLevel <
+        levels.length - 1;
+
+
+    if (nextLevelExists) {
+
+        victoryText.textContent =
+            `Completaste el nivel ${currentLevel + 1} en ${moves} movimientos.`;
+
+
+        modalNext.textContent =
+            `Nivel ${currentLevel + 2} →`;
+
+    }
+    else {
+
+        victoryText.textContent =
+            `¡Completaste los ${levels.length} niveles!`;
+
+
+        modalNext.textContent =
+            "🏆 Finalizar";
+
+    }
+
+
+    victoryModal.classList.add(
+        "show"
+    );
+
+}
+
+
+/* ============================================================
+   REINICIAR NIVEL
+============================================================ */
+
+function resetLevel() {
+
+    stopRequested =
+        true;
+
+    isRunning =
+        false;
+
+    runButton.disabled =
+        false;
+
+    resetButton.disabled =
+        false;
+
+    program = [];
+
+    moves = 0;
+
+
+    car = {
+
+        row:
+            currentLevelData.start.row,
+
+        col:
+            currentLevelData.start.col,
+
+        direction:
+            currentLevelData.start.direction
+
+    };
+
+
+    movesElement.textContent =
+        "0";
+
+
+    setStatus(
+        "Nivel reiniciado.",
+        ""
+    );
+
+
+    renderBoard();
+
+    renderProgram();
+
+}
+
+
+/* ============================================================
+   SIGUIENTE NIVEL
+============================================================ */
+
+function nextLevel() {
+
+    victoryModal.classList.remove(
+        "show"
+    );
+
+
+    if (
+        currentLevel <
+        levels.length - 1
+    ) {
+
+        loadLevel(
+            currentLevel + 1
+        );
+
+    }
+    else {
+
+        loadLevel(0);
+
+    }
+
+}
+
+
+/* ============================================================
+   DETENER
+============================================================ */
+
+function stopProgram() {
+
+    if (!isRunning) {
+        return;
+    }
+
+
+    stopRequested =
+        true;
+
+    isRunning =
+        false;
+
+
+    runButton.disabled =
+        false;
+
+    resetButton.disabled =
+        false;
+
+
+    clearProgramHighlight();
+
+
+    setStatus(
+        "⏹ Programa detenido.",
+        ""
+    );
+
+}
+
+
+/* ============================================================
+   MENSAJE DE ESTADO
+============================================================ */
+
+function setStatus(
+    message,
+    type
+) {
+
+    statusElement.textContent =
+        message;
+
+    statusElement.className =
+        "pc-status";
+
+
+    if (type) {
+
+        statusElement.classList.add(
+            type
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   ESPERA
+============================================================ */
+
+function sleep(milliseconds) {
+
+    return new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                milliseconds
+            )
+    );
+
+}
+
+
+/* ============================================================
+   CONFETI
+============================================================ */
+
+function createConfetti() {
+
+    const total =
+        80;
+
+
+    for (
+        let i = 0;
+        i < total;
+        i++
+    ) {
+
+        const confetti =
+            document.createElement(
+                "div"
+            );
+
+
+        confetti.className =
+            "pc-confetti";
+
+
+        /*
+            Usamos colores aleatorios
+            mediante HSL.
+        */
+
+        const hue =
+            Math.floor(
+                Math.random() * 360
+            );
+
+
+        confetti.style.background =
+            `hsl(${hue}, 90%, 60%)`;
+
+
+        confetti.style.left =
+            Math.random() * 100 +
+            "vw";
+
+
+        confetti.style.animationDuration =
+            (2 + Math.random() * 3) +
+            "s";
+
+
+        confetti.style.animationDelay =
+            Math.random() * 0.8 +
+            "s";
+
+
+        confetti.style.transform =
+            `rotate(${Math.random() * 360}deg)`;
+
+
+        game.appendChild(
+            confetti
+        );
+
+
+        setTimeout(
+            () => {
+
+                confetti.remove();
+
+            },
+            5500
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   EVENTOS DE BOTONES
+============================================================ */
+
+runButton.addEventListener(
+    "click",
+    runProgram
+);
+
+
+stopButton.addEventListener(
+    "click",
+    stopProgram
+);
+
+
+resetButton.addEventListener(
+    "click",
+    resetLevel
+);
+
+
+nextButton.addEventListener(
+    "click",
+    nextLevel
+);
+
+
+modalReplay.addEventListener(
+    "click",
+    () => {
+
+        victoryModal.classList.remove(
+            "show"
+        );
+
+        resetLevel();
+
+    }
+);
+
+
+modalNext.addEventListener(
+    "click",
+    nextLevel
+);
+
+
+/* ============================================================
+   CERRAR MODAL AL HACER CLICK FUERA
+============================================================ */
+
+victoryModal.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target ===
+            victoryModal
+        ) {
+
+            victoryModal.classList.remove(
+                "show"
+            );
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   INICIAR JUEGO
+============================================================ */
+
+loadLevel(0);
+
+</script>
+
+</body>
+</html>
