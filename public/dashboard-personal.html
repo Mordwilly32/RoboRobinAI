@@ -6,8 +6,10 @@
 <title>Mi espacio — roboRobin</title>
 <link rel="icon" href="/images/robin.png" />
 <link rel="stylesheet" href="/css/style.css" />
+<link rel="stylesheet" href="/css/juegos menu.css" />
 </head>
 <body>
+
 
 <div class="rr-app" id="rrApp">
   <main class="rr-main">
@@ -55,6 +57,78 @@
         <div id="taskPanel"></div>
       </div>
     </section>
+	
+	
+	<!-- Juegos educativos -->
+<section class="rr-section" id="section-Games" style="display:none">
+
+  <div class="rr-section-title">
+    <h2>Juegos educativos</h2>
+  </div>
+
+  <p class="rr-section-lead">
+    Aprende y diviértete con nuestros juegos educativos.
+  </p>
+
+  <div class="rr-games-grid">
+
+    <!-- Rompecabezas lógico -->
+    <a class="rr-game-card"
+       href="/juegos/juego1.html"
+       target="_blank"
+       rel="noopener noreferrer">
+
+      <div class="rr-game-image">
+        <img src="/images/games/rompecabezas-logico.png"
+             alt="Rompecabezas lógico">
+      </div>
+
+      <div class="rr-game-title">
+        Rompecabezas lógico
+      </div>
+
+    </a>
+
+
+    <!-- Equilibra la balanza -->
+    <a class="rr-game-card"
+       href="/juegos/juego2.html"
+       target="_blank"
+       rel="noopener noreferrer">
+
+      <div class="rr-game-image">
+        <img src="/images/games/equilibra-la-balanza.png"
+             alt="Equilibra la balanza">
+      </div>
+
+      <div class="rr-game-title">
+        Equilibra la balanza
+      </div>
+
+    </a>
+
+
+    <!-- Programación básica -->
+    <a class="rr-game-card"
+       href="/juegos/juego3.html"
+       target="_blank"
+       rel="noopener noreferrer">
+
+      <div class="rr-game-image">
+        <img src="/images/games/programacion-basica.png"
+             alt="Programación básica">
+      </div>
+
+      <div class="rr-game-title">
+        Programación básica
+      </div>
+
+    </a>
+
+  </div>
+
+</section>
+	
 
     <!-- Historial del chat -->
     <section class="rr-section" id="section-history" style="display:none">
@@ -65,6 +139,9 @@
       <p class="rr-section-lead">Todas tus conversaciones con Robin se guardan en <code>data/db.json</code>, en esta computadora. Nadie más las ve.</p>
       <div id="historyList"></div>
     </section>
+	
+	
+	
 
     <!-- Perfil -->
     <section class="rr-section" id="section-profile" style="display:none">
