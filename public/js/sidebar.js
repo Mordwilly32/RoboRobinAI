@@ -6,6 +6,7 @@ const RR_NAV_BY_ROLE = {
   personal: [
     { group: 'Mi espacio' },
     { id: 'work', label: 'Robin y mis tareas', icon: '✨' },
+	  { id: 'Games', label: 'Juegos educativos', icon: '🎮' },
     { id: 'history', label: 'Historial', icon: '🕘' },
     { group: 'Cuenta' },
     { id: 'profile', label: 'Mi perfil', icon: '⚙️' }
